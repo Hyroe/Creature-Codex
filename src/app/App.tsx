@@ -1,12 +1,7 @@
-import React from 'react';
+import { AppRoutes } from '../routes/AppRoutes';
 
-const App: React.FC = () => {
-  return (
-    <div style={{ fontFamily: 'sans-serif', padding: '2rem' }}>
-      <h1>Creature Codex</h1>
-      <p>Aplicación React simple funcionando.</p>
-    </div>
-  );
-};
+function App() {
+  return <AppRoutes />;
+}
 
 export default App;
