@@ -1,17 +1,14 @@
-import {
-  Box,
-  Chip,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Box, Chip, Stack, Typography } from '@mui/material';
 
 import type { Creature } from '../types/creature';
+import { getCreatureHabitats } from '../selectors/creatureSelectors';
 
 interface CreatureHeaderProps {
   creature: Creature;
 }
 
 export function CreatureHeader({ creature }: CreatureHeaderProps) {
+  const habitats = getCreatureHabitats(creature);
   return (
     <Box>
       <Typography
@@ -53,15 +50,12 @@ export function CreatureHeader({ creature }: CreatureHeaderProps) {
       </Typography>
 
       <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
-        <Chip label={`Habitat: ${creature.habitat}`} />
-
+        {habitats.map((habitat) => (
+          <Chip key={habitat.id} label={`Habitat: ${habitat.name}`} />
+        ))}
         <Chip
           label={`Threat: ${creature.threatLevel}`}
-          color={
-            creature.threatLevel === 'Extreme'
-              ? 'error'
-              : 'default'
-          }
+          color={creature.threatLevel === 'Extreme' ? 'error' : 'default'}
         />
       </Stack>
     </Box>

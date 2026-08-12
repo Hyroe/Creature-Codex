@@ -1,49 +1,41 @@
-import { Link, useParams } from 'react-router-dom';
 import {
   Box,
-  Button,
   Container,
+  Stack,
   Typography,
 } from '@mui/material';
 
+import { useParams } from 'react-router-dom';
+
+import { creatures } from '../features/creatures/data/creatures';
+
 import { CreatureHero } from '../features/creatures/components/CreatureHero';
 import { CreatureOverview } from '../features/creatures/components/CreatureOverview';
-import { getCreatureById } from '../features/creatures/services/creatureService';
+import { CreatureEcology } from '../features/creatures/components/CreatureEcology';
+import { CreatureCombat } from '../features/creatures/components/CreatureCombat';
+import { CreatureGallery } from '../features/creatures/components/CreatureGallery';
 
 export function CreatureDetailsPage() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
 
-  const creature = id ? getCreatureById(id) : undefined;
+  const creature = creatures.find(
+    (creature) => creature.id === id,
+  );
 
   if (!creature) {
     return (
       <Container maxWidth="lg">
-        <Box
-          sx={{
-            minHeight: '60vh',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center',
-            gap: 2,
-          }}
-        >
-          <Typography variant="h3">
+        <Box sx={{ py: 8 }}>
+          <Typography variant="h4">
             Creature not found
           </Typography>
 
-          <Typography color="text.secondary">
-            The requested creature does not exist in the Codex.
-          </Typography>
-
-          <Button
-            component={Link}
-            to="/creatures"
-            variant="contained"
+          <Typography
+            color="text.secondary"
+            sx={{ mt: 1 }}
           >
-            Return to Codex
-          </Button>
+            The creature you are looking for does not exist.
+          </Typography>
         </Box>
       </Container>
     );
@@ -51,10 +43,18 @@ export function CreatureDetailsPage() {
 
   return (
     <Box>
-      <CreatureHero creature={creature} />
-
       <Container maxWidth="lg">
-        <CreatureOverview creature={creature} />
+        <Stack spacing={{ xs: 6, md: 10 }}>
+          <CreatureHero creature={creature} />
+
+          <CreatureOverview creature={creature} />
+
+          <CreatureEcology creature={creature} />
+
+          <CreatureCombat creature={creature} />
+
+          <CreatureGallery creature={creature} />
+        </Stack>
       </Container>
     </Box>
   );

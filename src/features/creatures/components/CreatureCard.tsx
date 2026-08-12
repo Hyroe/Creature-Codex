@@ -21,7 +21,7 @@ export function CreatureCard({ creature }: CreatureCardProps) {
         <CardMedia
           component="img"
           height="280"
-          image={creature.imageUrl}
+          image={creature.gallery.coverImage.url}
           alt={creature.name}
         />
 

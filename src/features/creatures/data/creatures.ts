@@ -7,64 +7,133 @@ export const creatures: Creature[] = [
     scientificName: 'Cineris Venator',
     description:
       'A nocturnal predator that inhabits volcanic forests and hunts by sensing vibrations beneath the ground.',
-    habitat: 'Volcanic Forests',
     threatLevel: 'High',
-    imageUrl:
-      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
+
+    ecology: {
+      habitatIds: ['volcanic-forest', 'underground'],
+      dietIds: ['carnivore'],
+
+      behavior:
+        'A solitary nocturnal hunter that remains hidden during the day and tracks prey through ground vibrations.',
+
+      lifeCycle:
+        'Young Ashen Stalkers remain underground for several months before emerging to hunt independently.',
+    },
+
+    combat: {
+      attackStyle:
+        'Prefers ambush attacks, striking from underground before retreating into the darkness.',
+
+      affinities: [
+        {
+          id: 'ashen-stalker-water',
+          type: 'Weakness',
+          targetType: 'Element',
+          targetId: 'water',
+          description:
+            'Water interferes with the creature’s ability to sense vibrations through volcanic soil.',
+        },
+
+        {
+          id: 'ashen-stalker-ice',
+          type: 'Weakness',
+          targetType: 'Element',
+          targetId: 'ice',
+        },
+
+        {
+          id: 'ashen-stalker-fire',
+          type: 'Resistance',
+          targetType: 'Element',
+          targetId: 'fire',
+        },
+
+        {
+          id: 'ashen-stalker-eyes',
+          type: 'Weakness',
+          targetType: 'BodyPart',
+          targetId: 'eyes',
+          description:
+            'Its eyes are poorly protected and highly sensitive to direct attacks.',
+        },
+
+        {
+          id: 'ashen-stalker-slashing',
+          type: 'Resistance',
+          targetType: 'DamageType',
+          targetId: 'slashing',
+        },
+      ],
+    },
+
+    gallery: {
+      coverImage: {
+        id: 'ashen-stalker-01',
+        url: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
+        alt: 'Ashen Stalker concept art',
+        caption: 'Field observation',
+      },
+
+      images: [],
+    },
   },
+
   {
     id: 'hollow-antler',
     name: 'Hollow Antler',
     scientificName: 'Cervus Vacuus',
     description:
       'A strange herbivore whose antlers grow hollow and resonate with sounds from the surrounding forest.',
-    habitat: 'Ancient Forests',
     threatLevel: 'Moderate',
-    imageUrl:
-      'https://images.unsplash.com/photo-1484406566174-9da000fda645?auto=format&fit=crop&w=1200&q=80',
+
+    ecology: {
+      habitatIds: ['ancient-forest'],
+      dietIds: ['herbivore'],
+
+      behavior:
+        'Generally peaceful, but becomes highly territorial during its mating season.',
+
+      lifeCycle:
+        'The species reaches maturity after several years and sheds its antlers once every cycle.',
+    },
+
+    combat: {
+      attackStyle:
+        'Uses powerful charges and sweeping attacks with its enormous antlers when threatened.',
+
+      affinities: [
+        {
+          id: 'hollow-antler-fire',
+          type: 'Weakness',
+          targetType: 'Element',
+          targetId: 'fire',
+        },
+
+        {
+          id: 'hollow-antler-nature',
+          type: 'Resistance',
+          targetType: 'Element',
+          targetId: 'nature',
+        },
+
+        {
+          id: 'hollow-antler-blunt',
+          type: 'Resistance',
+          targetType: 'DamageType',
+          targetId: 'blunt',
+        },
+      ],
+    },
+
+    gallery: {
+      coverImage: {
+        id: 'hollow-antler-01',
+        url: 'https://images.unsplash.com/photo-1484406566174-9da000fda645?auto=format&fit=crop&w=1200&q=80',
+        alt: 'Hollow Antler concept art',
+        caption: 'Specimen profile',
+      },
+
+      images: [],
+    },
   },
-  {
-    id: 'deepmaw',
-    name: 'Deepmaw',
-    scientificName: 'Abyssus Vorax',
-    description:
-      'An enormous aquatic creature rarely observed near the surface. Its presence is often preceded by sudden silence.',
-    habitat: 'Abyssal Waters',
-    threatLevel: 'Extreme',
-    imageUrl:
-      'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80',
-  },
-  {
-  id: 'marrow-crawler',
-  name: 'Marrow Crawler',
-  scientificName: 'Ossifex Vorax',
-  description:
-    'A subterranean scavenger that burrows through ancient burial grounds in search of mineral-rich bones.',
-  habitat: 'Burial Grounds',
-  threatLevel: 'High',
-  imageUrl:
-    'https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=80',
-},
-{
-  id: 'mossback',
-  name: 'Mossback',
-  scientificName: 'Viriditerga Minor',
-  description:
-    'A peaceful creature covered in thick moss that spends most of its life wandering through humid forests.',
-  habitat: 'Humid Forests',
-  threatLevel: 'Low',
-  imageUrl:
-    'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1200&q=80',
-},
-{
-  id: 'storm-harrier',
-  name: 'Storm Harrier',
-  scientificName: 'Fulmen Rapax',
-  description:
-    'A flying predator capable of riding violent storms across entire mountain ranges.',
-  habitat: 'Mountain Peaks',
-  threatLevel: 'Extreme',
-  imageUrl:
-    'https://images.unsplash.com/photo-1444464666168-49d633b86797?auto=format&fit=crop&w=1200&q=80',
-},
 ];
