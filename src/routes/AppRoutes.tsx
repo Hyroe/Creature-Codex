@@ -15,6 +15,7 @@ import { DamageTypeDetailsPage } from '../features/library/pages/DamageTypeDetai
 import { BodyPartDetailsPage } from '../features/library/pages/BodyPartDetailsPage';
 import { HabitatDetailsPage } from '../features/library/pages/HabitatDetailsPage';
 import { DietDetailsPage } from '../features/library/pages/DietDetailsPage';
+import NotFoundPage from '../pages/NotFoundPage';
 
 export function AppRoutes() {
   return (
@@ -26,15 +27,34 @@ export function AppRoutes() {
           <Route path="/creatures/:id" element={<CreatureDetailsPage />} />
           <Route path="/library" element={<LibraryPage />} />
           <Route path="/library/elements" element={<ElementsLibraryPage />} />
-          <Route path="/library/damage-types" element={<DamageTypesLibraryPage />} />
-          <Route path="/library/body-parts" element={<BodyPartsLibraryPage />} />
+          <Route
+            path="/library/damage-types"
+            element={<DamageTypesLibraryPage />}
+          />
+          <Route
+            path="/library/body-parts"
+            element={<BodyPartsLibraryPage />}
+          />
           <Route path="/library/habitats" element={<HabitatsLibraryPage />} />
           <Route path="/library/diets" element={<DietsLibraryPage />} />
-          <Route path="/library/elements/:id" element={<ElementDetailsPage />} />
-          <Route path="/library/damage-types/:id" element={<DamageTypeDetailsPage />} />
-          <Route path="/library/body-parts/:id" element={<BodyPartDetailsPage />} />
-          <Route path="/library/habitats/:id" element={<HabitatDetailsPage />} />
+          <Route
+            path="/library/elements/:id"
+            element={<ElementDetailsPage />}
+          />
+          <Route
+            path="/library/damage-types/:id"
+            element={<DamageTypeDetailsPage />}
+          />
+          <Route
+            path="/library/body-parts/:id"
+            element={<BodyPartDetailsPage />}
+          />
+          <Route
+            path="/library/habitats/:id"
+            element={<HabitatDetailsPage />}
+          />
           <Route path="/library/diets/:id" element={<DietDetailsPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
