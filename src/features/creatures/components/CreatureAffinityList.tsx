@@ -6,6 +6,8 @@ import {
   Typography,
 } from '@mui/material';
 
+import { Link } from 'react-router-dom';
+
 import type { CreatureAffinity } from '../types/creatureAffinity';
 
 interface ResolvedAffinity extends CreatureAffinity {
@@ -20,6 +22,25 @@ interface ResolvedAffinity extends CreatureAffinity {
 interface CreatureAffinityListProps {
   title: string;
   affinities: ResolvedAffinity[];
+}
+
+function getTargetPath(
+  targetType: CreatureAffinity['targetType'],
+  targetId: string,
+) {
+  switch (targetType) {
+    case 'Element':
+      return `/library/elements/${targetId}`;
+
+    case 'DamageType':
+      return `/library/damage-types/${targetId}`;
+
+    case 'BodyPart':
+      return `/library/body-parts/${targetId}`;
+
+    default:
+      return '#';
+  }
 }
 
 export function CreatureAffinityList({
@@ -48,7 +69,22 @@ export function CreatureAffinityList({
                   gap: 2,
                 }}
               >
-                <Typography variant="subtitle1">
+                <Typography
+                  variant="subtitle1"
+                  component={Link}
+                  to={getTargetPath(
+                    affinity.targetType,
+                    affinity.target.id,
+                  )}
+                  sx={{
+                    color: 'inherit',
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    '&:hover': {
+                      textDecoration: 'underline',
+                    },
+                  }}
+                >
                   {affinity.target.name}
                 </Typography>
 

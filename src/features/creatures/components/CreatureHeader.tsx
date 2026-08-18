@@ -1,4 +1,5 @@
 import { Box, Chip, Stack, Typography } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 import type { Creature } from '../types/creature';
 import { getCreatureHabitats } from '../selectors/creatureSelectors';
@@ -51,7 +52,13 @@ export function CreatureHeader({ creature }: CreatureHeaderProps) {
 
       <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
         {habitats.map((habitat) => (
-          <Chip key={habitat.id} label={`Habitat: ${habitat.name}`} />
+          <Chip
+            key={habitat.id}
+            label={`Habitat: ${habitat.name}`}
+            component={Link}
+            clickable
+            to={`/library/habitats/${habitat.id}`}
+          />
         ))}
         <Chip
           label={`Threat: ${creature.threatLevel}`}

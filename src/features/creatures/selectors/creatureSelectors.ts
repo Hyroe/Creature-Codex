@@ -7,6 +7,7 @@ import { diets } from '../data/diets';
 import { elements } from '../data/elements';
 import { damageTypes } from '../data/damageTypes';
 import { bodyParts } from '../data/bodyParts';
+import { creatures } from '../data/creatures';
 
 export function getCreatureHabitats(
   creature: Creature,
@@ -77,4 +78,88 @@ export function getCreatureResistances(
   return getCreatureAffinities(creature).filter(
     (affinity) => affinity.type === 'Resistance',
   );
+}
+
+export function getCreaturesWithAffinityTarget(
+  targetType: 'Element' | 'DamageType' | 'BodyPart',
+  targetId: string,
+) {
+  return creatures.filter((creature) =>
+    creature.combat.affinities.some(
+      (affinity) =>
+        affinity.targetType === targetType &&
+        affinity.targetId === targetId,
+    ),
+  );
+}
+
+export function getCreaturesWeakTo(
+  targetType: 'Element' | 'DamageType' | 'BodyPart',
+  targetId: string,
+) {
+  return creatures.filter((creature) =>
+    creature.combat.affinities.some(
+      (affinity) =>
+        affinity.type === 'Weakness' &&
+        affinity.targetType === targetType &&
+        affinity.targetId === targetId,
+    ),
+  );
+}
+
+export function getCreaturesResistantTo(
+  targetType: 'Element' | 'DamageType' | 'BodyPart',
+  targetId: string,
+) {
+  return creatures.filter((creature) =>
+    creature.combat.affinities.some(
+      (affinity) =>
+        affinity.type === 'Resistance' &&
+        affinity.targetType === targetType &&
+        affinity.targetId === targetId,
+    ),
+  );
+}
+export function getAffinityTargetName(
+  targetType: 'Element' | 'DamageType' | 'BodyPart',
+  targetId: string,
+) {
+  switch (targetType) {
+    case 'Element':
+      return elements.find(
+        (element) => element.id === targetId,
+      )?.name;
+
+    case 'DamageType':
+      return damageTypes.find(
+        (damageType) => damageType.id === targetId,
+      )?.name;
+
+    case 'BodyPart':
+      return bodyParts.find(
+        (bodyPart) => bodyPart.id === targetId,
+      )?.name;
+
+    default:
+      return undefined;
+  }
+}
+
+export function getAffinityTargetPath(
+  targetType: 'Element' | 'DamageType' | 'BodyPart',
+  targetId: string,
+) {
+  switch (targetType) {
+    case 'Element':
+      return `/library/elements/${targetId}`;
+
+    case 'DamageType':
+      return `/library/damage-types/${targetId}`;
+
+    case 'BodyPart':
+      return `/library/body-parts/${targetId}`;
+
+    default:
+      return undefined;
+  }
 }

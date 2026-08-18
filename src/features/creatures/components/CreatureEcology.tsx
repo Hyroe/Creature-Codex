@@ -5,6 +5,7 @@ import {
   getCreatureHabitats,
   getCreatureDiets,
 } from '../selectors/creatureSelectors';
+import { Link } from 'react-router-dom';
 
 interface CreatureEcologyProps {
   creature: Creature;
@@ -38,7 +39,13 @@ export function CreatureEcology({ creature }: CreatureEcologyProps) {
                 }}
               >
                 {habitats.map((habitat) => (
-                  <Chip key={habitat.id} label={habitat.name} />
+                  <Chip
+                    key={habitat.id}
+                    label={habitat.name}
+                    component={Link}
+                    clickable
+                    to={`/library/habitats/${habitat.id}`}
+                  />
                 ))}
               </Box>
             </Stack>
@@ -58,7 +65,13 @@ export function CreatureEcology({ creature }: CreatureEcologyProps) {
                 }}
               >
                 {diets.map((diet) => (
-                  <Chip key={diet.id} label={diet.name} />
+                  <Chip
+                    key={diet.id}
+                    label={diet.name}
+                    component={Link}
+                    clickable
+                    to={`/library/diets/${diet.id}`}
+                  />
                 ))}
               </Box>
             </Stack>
