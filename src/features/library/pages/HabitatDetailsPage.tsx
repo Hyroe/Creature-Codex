@@ -12,6 +12,7 @@ import { creatures } from '../../creatures/data/creatures';
 
 import { LibraryEntityDetails } from '../components/LibraryEntityDetails';
 import { LibraryCreatureCard } from '../components/LibraryCreatureCard';
+import { EmptyState } from '../../../components/common/EmptyState';
 
 export function HabitatDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,12 +22,15 @@ export function HabitatDetailsPage() {
   );
 
   if (!habitat) {
-    return (
-      <Typography>
-        Habitat not found.
-      </Typography>
-    );
-  }
+  return (
+    <EmptyState
+      title="Habitat Not Found"
+      description="This habitat does not exist in the Creature Codex."
+      actionLabel="Back to Habitats"
+      actionTo="/library/habitats"
+    />
+  );
+}   
 
   const relatedCreatures = creatures.filter(
     (creature) =>

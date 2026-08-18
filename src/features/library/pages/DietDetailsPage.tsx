@@ -12,6 +12,7 @@ import { creatures } from '../../creatures/data/creatures';
 
 import { LibraryEntityDetails } from '../components/LibraryEntityDetails';
 import { LibraryCreatureCard } from '../components/LibraryCreatureCard';
+import { EmptyState } from '../../../components/common/EmptyState';
 
 export function DietDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,12 +22,15 @@ export function DietDetailsPage() {
   );
 
   if (!diet) {
-    return (
-      <Typography>
-        Diet not found.
-      </Typography>
-    );
-  }
+  return (
+    <EmptyState
+      title="Diet Not Found"
+      description="This diet does not exist in the Creature Codex."
+      actionLabel="Back to Diets"
+      actionTo="/library/diets"
+    />
+  );
+}
 
   const relatedCreatures = creatures.filter(
     (creature) =>

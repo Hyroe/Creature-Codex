@@ -15,6 +15,7 @@ import {
 
 import { LibraryEntityDetails } from '../components/LibraryEntityDetails';
 import { LibraryCreatureCard } from '../components/LibraryCreatureCard';
+import { EmptyState } from '../../../components/common/EmptyState';
 
 export function BodyPartDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -24,12 +25,15 @@ export function BodyPartDetailsPage() {
   );
 
   if (!bodyPart) {
-    return (
-      <Typography>
-        Body part not found.
-      </Typography>
-    );
-  }
+  return (
+    <EmptyState
+      title="Body Part Not Found"
+      description="This body part does not exist in the Creature Codex."
+      actionLabel="Back to Body Parts"
+      actionTo="/library/body-parts"
+    />
+  );
+}   
 
   const weakCreatures = getCreaturesWeakTo(
     'BodyPart',

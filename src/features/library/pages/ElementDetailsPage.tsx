@@ -15,6 +15,7 @@ import {
 
 import { LibraryEntityDetails } from '../components/LibraryEntityDetails';
 import { LibraryCreatureCard } from '../components/LibraryCreatureCard';
+import { EmptyState } from '../../../components/common/EmptyState';
 
 export function ElementDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -24,12 +25,15 @@ export function ElementDetailsPage() {
   );
 
   if (!element) {
-    return (
-      <Typography>
-        Element not found.
-      </Typography>
-    );
-  }
+  return (
+    <EmptyState
+      title="Element Not Found"
+      description="This element does not exist in the Creature Codex."
+      actionLabel="Back to Elements"
+      actionTo="/library/elements"
+    />
+  );
+}
 
   const weakCreatures = getCreaturesWeakTo(
     'Element',

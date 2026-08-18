@@ -15,6 +15,7 @@ import {
 
 import { LibraryEntityDetails } from '../components/LibraryEntityDetails';
 import { LibraryCreatureCard } from '../components/LibraryCreatureCard';
+import { EmptyState } from '../../../components/common/EmptyState';
 
 export function DamageTypeDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -24,12 +25,15 @@ export function DamageTypeDetailsPage() {
   );
 
   if (!damageType) {
-    return (
-      <Typography>
-        Damage type not found.
-      </Typography>
-    );
-  }
+  return (
+    <EmptyState
+      title="Damage Type Not Found"
+      description="This damage type does not exist in the Creature Codex."
+      actionLabel="Back to Damage Types"
+      actionTo="/library/damage-types"
+    />
+  );
+}
 
   const weakCreatures = getCreaturesWeakTo(
     'DamageType',

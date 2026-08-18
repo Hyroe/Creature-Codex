@@ -15,7 +15,7 @@ import { DamageTypeDetailsPage } from '../features/library/pages/DamageTypeDetai
 import { BodyPartDetailsPage } from '../features/library/pages/BodyPartDetailsPage';
 import { HabitatDetailsPage } from '../features/library/pages/HabitatDetailsPage';
 import { DietDetailsPage } from '../features/library/pages/DietDetailsPage';
-import NotFoundPage from '../pages/NotFoundPage';
+import { NotFoundPage } from '../pages/NotFoundPage';
 
 export function AppRoutes() {
   return (
