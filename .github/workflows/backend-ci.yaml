@@ -19,6 +19,13 @@ jobs:
       run:
         working-directory: backend
 
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: creature_codex
+      POSTGRES_PORT: 5432
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/creature_codex
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,5 +43,21 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
+      - name: Start PostgreSQL
+        run: docker compose up -d db
+
+      - name: Run database migrations
+        run: npx prisma migrate deploy
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run integration tests
+        run: npm run test:integration
+
       - name: Build
         run: npm run build
+
+      - name: Stop Docker services
+        if: always()
+        run: docker compose down -v
