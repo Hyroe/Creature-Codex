@@ -7,10 +7,10 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "dotenv -e .env.test -- vitest run",
-    "test:watch": "dotenv -e .env.test -- vitest",
-    "test:unit": "vitest run tests/unit",
-    "test:integration": "dotenv -e .env.test -- vitest run tests/integration"
+    "test": "dotenv -e .env.test -- vitest run --config vitest.config.ts",
+    "test:watch": "dotenv -e .env.test -- vitest --config vitest.config.ts",
+    "test:unit": "vitest run tests/unit --config vitest.config.ts",
+    "test:integration": "dotenv -e .env.test -- vitest run tests/integration --config vitest.config.ts"
   },
   "keywords": [],
   "author": "",
