@@ -1,6 +1,8 @@
-import { prisma } from '../lib/prisma';
+import { getPrisma } from '../lib/prisma';
+
 
 export async function getUsers() {
+  const prisma = getPrisma();
   return prisma.user.findMany({
     select: {
       id: true,

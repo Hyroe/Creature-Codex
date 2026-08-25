@@ -16,6 +16,7 @@ import { BodyPartDetailsPage } from '../features/library/pages/BodyPartDetailsPa
 import { HabitatDetailsPage } from '../features/library/pages/HabitatDetailsPage';
 import { DietDetailsPage } from '../features/library/pages/DietDetailsPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
+import { LoginPage } from '../features/auth/pages/LoginPage';
 
 export function AppRoutes() {
   return (
@@ -23,6 +24,7 @@ export function AppRoutes() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/creatures" element={<CreaturesPage />} />
           <Route path="/creatures/:id" element={<CreatureDetailsPage />} />
           <Route path="/library" element={<LibraryPage />} />
