@@ -46,17 +46,23 @@ jobs:
       - name: Start PostgreSQL
         run: docker compose up -d --wait db
 
+      - name: Check PostgreSQL
+        run: docker compose ps  
+
       - name: Run database migrations
         run: npx prisma migrate deploy
 
-      - name: Run tests
-        run: npm test
+      - name: Run unit tests
+        run: npm run test:unit
 
       - name: Run integration tests
         run: npm run test:integration
 
       - name: Build
         run: npm run build
+
+      - name: Build Docker image
+        run: docker compose build
 
       - name: Stop Docker services
         if: always()
