@@ -1,6 +1,10 @@
 import type { Request, Response } from 'express';
 import { loginSchema, registerSchema } from '../schemas/authSchemas';
-import { loginUser, registerUser, refreshAccessToken } from '../services/authService';
+import {
+  loginUser,
+  registerUser,
+  refreshAccessToken,
+} from '../services/authService';
 import { z } from 'zod';
 import { getUserById } from '../services/userService';
 
@@ -24,10 +28,7 @@ export async function register(req: Request, res: Response) {
       refreshToken,
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message === 'USER_ALREADY_EXISTS'
-    ) {
+    if (error instanceof Error && error.message === 'USER_ALREADY_EXISTS') {
       res.status(409).json({
         message: 'Username or email already exists',
       });
@@ -52,16 +53,19 @@ export async function login(req: Request, res: Response) {
   try {
     const { user, accessToken, refreshToken } = await loginUser(result.data);
 
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     res.status(200).json({
       user,
       accessToken,
-      refreshToken,
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message === 'INVALID_CREDENTIALS'
-    ) {
+    if (error instanceof Error && error.message === 'INVALID_CREDENTIALS') {
       res.status(401).json({
         message: 'Invalid email or password',
       });
@@ -72,8 +76,18 @@ export async function login(req: Request, res: Response) {
   }
 }
 
+export function logout(_req: Request, res: Response) {
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  });
+
+  res.status(204).send();
+}
+
 export async function refresh(req: Request, res: Response) {
-  const { refreshToken } = req.body;
+  const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
     res.status(400).json({
@@ -87,10 +101,7 @@ export async function refresh(req: Request, res: Response) {
 
     res.status(200).json(tokens);
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message === 'INVALID_REFRESH_TOKEN'
-    ) {
+    if (error instanceof Error && error.message === 'INVALID_REFRESH_TOKEN') {
       res.status(403).json({
         message: 'Invalid refresh token',
       });

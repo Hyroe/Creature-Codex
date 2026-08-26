@@ -17,6 +17,8 @@ import { HabitatDetailsPage } from '../features/library/pages/HabitatDetailsPage
 import { DietDetailsPage } from '../features/library/pages/DietDetailsPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { LoginPage } from '../features/auth/pages/LoginPage';
+import { ProfilePage } from '../pages/ProfilePage';
+import { ProtectedRoute } from '../components/common/ProtectedRoute';
 
 export function AppRoutes() {
   return (
@@ -57,8 +59,13 @@ export function AppRoutes() {
           />
           <Route path="/library/diets/:id" element={<DietDetailsPage />} />
           <Route path="*" element={<NotFoundPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/profile" element={<ProfilePage />} />
+          </Route>
+          ;
         </Route>
       </Routes>
     </BrowserRouter>
   );
 }
+

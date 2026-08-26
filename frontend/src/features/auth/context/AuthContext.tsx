@@ -1,57 +1,84 @@
+import { createContext, useContext, useEffect, useState,  type ReactNode } from 'react';
 import {
-  createContext,
-  useContext,
-  useState,
-  type ReactNode,
-} from 'react';
+  apiFetch,
+  setApiAccessToken,
+} from '../services/apiClient';
 
 import {
   login as loginRequest,
-} from '../services/authService';
+  logout as logoutRequest,
+  refresh as refreshRequest,
+  getMe,
+} from '../../../services/authService';
 
-import type {
-  AuthUser,
-  LoginRequest,
-} from '../types/auth';
+import type { AuthUser, LoginRequest } from '../types/auth';
 
 interface AuthContextValue {
   user: AuthUser | null;
   accessToken: string | null;
-  refreshToken: string | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(
-  undefined,
-);
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export function AuthProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(
-    null,
-  );
-  const [refreshToken, setRefreshToken] = useState<string | null>(
-    null,
-  );
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  async function login(credentials: LoginRequest) {
-    const response = await loginRequest(credentials);
+  useEffect(() => {
+  async function restoreSession() {
+    try {
+      const refreshResponse = await refreshRequest();
 
-    setUser(response.user);
-    setAccessToken(response.accessToken);
-    setRefreshToken(response.refreshToken);
+      setAccessToken(refreshResponse.accessToken);
+      setApiAccessToken(refreshResponse.accessToken);
+
+      const meResponse = await getMe(
+        refreshResponse.accessToken,
+      );
+
+      setUser(meResponse.user);
+    } catch {
+      setUser(null);
+      setAccessToken(null);
+      setApiAccessToken(null);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
-  function logout() {
-    setUser(null);
-    setAccessToken(null);
-    setRefreshToken(null);
+  restoreSession();
+}, []);
+
+  async function login(credentials: LoginRequest) {
+    setIsLoading(true);
+
+    try {
+      const response = await loginRequest(credentials);
+
+      setUser(response.user);
+      setAccessToken(response.accessToken);
+      setApiAccessToken(response.accessToken);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function logout() {
+    setIsLoading(true);
+    try {
+      await logoutRequest();
+
+      setUser(null);
+      setAccessToken(null);
+      setApiAccessToken(null);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -59,8 +86,8 @@ export function AuthProvider({
       value={{
         user,
         accessToken,
-        refreshToken,
         isAuthenticated: user !== null,
+        isLoading,
         login,
         logout,
       }}
@@ -74,9 +101,7 @@ export function useAuth() {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error(
-      'useAuth must be used inside AuthProvider',
-    );
+    throw new Error('useAuth must be used inside AuthProvider');
   }
 
   return context;
