@@ -1,7 +1,67 @@
 import argon2 from 'argon2';
-
+import jwt from 'jsonwebtoken';
+import type { SignOptions } from 'jsonwebtoken';
 import { getPrisma } from '../lib/prisma';
 import type { RegisterInput, LoginInput } from '../schemas/authSchemas';
+import { JWT_CONFIG } from '../config/jwt';
+
+interface TokenPayload {
+  userId: string;
+  email: string;
+  role: string;
+  type: 'access' | 'refresh';
+}
+
+
+
+export function generateAccessToken(user: {
+  id: string;
+  email: string;
+  role: string;
+}) {
+  return jwt.sign(
+    {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      type: 'access',
+    },
+    JWT_CONFIG.accessSecret,
+    {
+      expiresIn: JWT_CONFIG.expiresIn,
+    },
+  );
+}
+
+export function generateRefreshToken(user: {
+  id: string;
+  email: string;
+  role: string;
+}) {
+  return jwt.sign(
+    {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      type: 'refresh',
+    },
+    JWT_CONFIG.refreshSecret,
+    {
+      expiresIn: JWT_CONFIG.refreshExpiresIn,
+    },
+  );
+}
+
+export function generateTokens(user: {
+  id: string;
+  email: string;
+  role: string;
+}) {
+  return {
+    accessToken: generateAccessToken(user),
+    refreshToken: generateRefreshToken(user),
+  };
+}
 
 export async function registerUser(input: RegisterInput) {
   const prisma = getPrisma();
@@ -31,7 +91,6 @@ export async function registerUser(input: RegisterInput) {
       email: input.email,
       passwordHash,
     },
-
     select: {
       id: true,
       username: true,
@@ -45,7 +104,17 @@ export async function registerUser(input: RegisterInput) {
     },
   });
 
-  return user;
+  // Generate tokens for the new user
+  const tokens = generateTokens({
+    id: user.id,
+    email: user.email,
+    role: user.role,
+  });
+
+  return {
+    user,
+    ...tokens,
+  };
 }
 
 export async function loginUser(input: LoginInput) {
@@ -69,15 +138,71 @@ export async function loginUser(input: LoginInput) {
     throw new Error('INVALID_CREDENTIALS');
   }
 
-  return {
+  // Generate tokens for the logged-in user
+  const tokens = generateTokens({
     id: user.id,
-    username: user.username,
-    displayName: user.displayName,
     email: user.email,
     role: user.role,
-    avatarUrl: user.avatarUrl,
-    bio: user.bio,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
+  });
+
+  return {
+    user: {
+      id: user.id,
+      username: user.username,
+      displayName: user.displayName,
+      email: user.email,
+      role: user.role,
+      avatarUrl: user.avatarUrl,
+      bio: user.bio,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    },
+    ...tokens,
   };
+}
+
+export function verifyAccessToken(token: string): TokenPayload {
+  try {
+    const payload = jwt.verify(
+      token,
+      JWT_CONFIG.accessSecret
+    ) as TokenPayload;
+
+    if (payload.type !== 'access') {
+      throw new Error();
+    }
+
+    return payload;
+  } catch {
+    throw new Error('INVALID_ACCESS_TOKEN');
+  }
+}
+
+export function verifyRefreshToken(token: string): TokenPayload {
+  try {
+    const payload = jwt.verify(
+      token,
+      JWT_CONFIG.refreshSecret
+    ) as TokenPayload;
+
+    if (payload.type !== 'refresh') {
+      throw new Error();
+    }
+
+    return payload;
+  } catch {
+    throw new Error('INVALID_REFRESH_TOKEN');
+  }
+}
+
+export function refreshAccessToken(refreshToken: string) {
+  const payload = verifyRefreshToken(refreshToken);
+
+  const accessToken = generateAccessToken({
+    id: payload.userId,
+    email: payload.email,
+    role: payload.role,
+  });
+
+  return { accessToken };
 }

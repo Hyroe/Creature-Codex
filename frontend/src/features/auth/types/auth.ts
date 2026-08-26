@@ -5,11 +5,18 @@ export interface LoginRequest {
 
 export interface AuthUser {
   id: string;
-  email: string;
   username: string;
+  displayName: string;
+  email: string;
+  role: string;
+  avatarUrl: string | null;
+  bio: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface LoginResponse {
-  accessToken: string;
   user: AuthUser;
+  accessToken: string;
+  refreshToken: string;
 }

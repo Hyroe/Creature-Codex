@@ -1,6 +1,9 @@
 import { Box, Container, Paper, Stack, Typography } from '@mui/material';
+import type { ComponentType } from 'react';
 
 import { LoginForm } from '../components/LoginForm';
+
+const RenderableLoginForm = LoginForm as unknown as ComponentType;
 
 export function LoginPage() {
   return (
@@ -31,7 +34,7 @@ export function LoginPage() {
               </Typography>
             </Stack>
 
-            <LoginForm />
+            <RenderableLoginForm />
           </Stack>
         </Paper>
       </Container>

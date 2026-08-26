@@ -4,11 +4,19 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
-import { FormEvent, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { login } from '../services/authService';
+import {
+  useState,
+  type FormEvent,
+} from 'react';
+
+import { useAuth } from '../context/AuthContext';
 
 export function LoginForm() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -24,12 +32,11 @@ export function LoginForm() {
     setIsSubmitting(true);
 
     try {
-      const result = await login({
+      await login({
         email,
         password,
       });
-
-      console.log('Login successful:', result);
+      navigate('/', { replace: true });
     } catch (error) {
       setError(
         error instanceof Error

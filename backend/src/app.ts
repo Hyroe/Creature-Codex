@@ -19,6 +19,5 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/login', authRoutes);
 
 app.use(errorHandler);
