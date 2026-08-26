@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState,  type ReactNode } from 
 import {
   apiFetch,
   setApiAccessToken,
-} from '../services/apiClient';
+} from '../../../services/apiClient';
 
 import {
   login as loginRequest,
@@ -20,6 +20,7 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (user: AuthUser) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -81,6 +82,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  function updateUser(user: AuthUser) {
+  setUser(user);
+}
+
   return (
     <AuthContext.Provider
       value={{
@@ -90,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         login,
         logout,
+        updateUser,
       }}
     >
       {children}

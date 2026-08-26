@@ -7,11 +7,13 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../features/auth/context/AuthContext';
 
 export function ProfilePage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   if (!user) {
     return null;
@@ -44,43 +46,34 @@ export function ProfilePage() {
               </Avatar>
 
               <Box>
-                <Typography variant="h5">
-                  {user.displayName}
-                </Typography>
+                <Typography variant="h5">{user.displayName}</Typography>
 
-                <Typography color="text.secondary">
-                  @{user.username}
-                </Typography>
+                <Typography color="text.secondary">@{user.username}</Typography>
               </Box>
             </Box>
 
             <Box>
-              <Typography variant="subtitle2">
-                Email
-              </Typography>
+              <Typography variant="subtitle2">Email</Typography>
 
-              <Typography>
-                {user.email}
-              </Typography>
+              <Typography>{user.email}</Typography>
             </Box>
 
             {user.bio && (
               <Box>
-                <Typography variant="subtitle2">
-                  Bio
-                </Typography>
+                <Typography variant="subtitle2">Bio</Typography>
 
-                <Typography>
-                  {user.bio}
-                </Typography>
+                <Typography>{user.bio}</Typography>
               </Box>
             )}
 
-            <Button
-              variant="contained"
-              href="/profile/edit"
-            >
+            <Button variant="contained" href="/profile/edit">
               Edit profile
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/profile/change-password')}
+            >
+              Change password
             </Button>
           </Stack>
         </CardContent>

@@ -19,6 +19,8 @@ import { NotFoundPage } from '../pages/NotFoundPage';
 import { LoginPage } from '../features/auth/pages/LoginPage';
 import { ProfilePage } from '../pages/ProfilePage';
 import { ProtectedRoute } from '../components/common/ProtectedRoute';
+import { EditProfilePage } from '../pages/EditProfilePage';
+import { ChangePasswordPage } from '../pages/ChangePasswordPage';
 
 export function AppRoutes() {
   return (
@@ -61,6 +63,11 @@ export function AppRoutes() {
           <Route path="*" element={<NotFoundPage />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile/edit" element={<EditProfilePage />} />
+            <Route
+              path="/profile/change-password"
+              element={<ChangePasswordPage />}
+            />
           </Route>
           ;
         </Route>
@@ -68,4 +75,3 @@ export function AppRoutes() {
     </BrowserRouter>
   );
 }
-
