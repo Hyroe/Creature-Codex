@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import {
   Alert,
+  Avatar,
   Box,
   Button,
   Stack,
@@ -16,25 +17,17 @@ import { updateProfile } from '../services/userService';
 export function EditProfilePage() {
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
-
-  const [displayName, setDisplayName] = useState(
-    user?.displayName ?? '',
-  );
-
-  const [bio, setBio] = useState(
-    user?.bio ?? '',
-  );
-
+  const [displayName, setDisplayName] = useState(user?.displayName ?? '');
+  const [bio, setBio] = useState(user?.bio ?? '');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl ?? '');
 
   if (!user) {
     return null;
   }
 
-  async function handleSubmit(
-    event: React.FormEvent<HTMLFormElement>,
-  ) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setIsSaving(true);
@@ -44,6 +37,7 @@ export function EditProfilePage() {
       const response = await updateProfile({
         displayName,
         bio: bio || null,
+        avatarUrl: avatarUrl || null,
       });
 
       updateUser(response.user);
@@ -51,9 +45,7 @@ export function EditProfilePage() {
       navigate('/profile');
     } catch (error) {
       setError(
-        error instanceof Error
-          ? error.message
-          : 'Unable to update profile',
+        error instanceof Error ? error.message : 'Unable to update profile',
       );
     } finally {
       setIsSaving(false);
@@ -73,32 +65,21 @@ export function EditProfilePage() {
         Edit profile
       </Typography>
 
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-      >
+      <Box component="form" onSubmit={handleSubmit}>
         <Stack spacing={3}>
-          {error && (
-            <Alert severity="error">
-              {error}
-            </Alert>
-          )}
+          {error && <Alert severity="error">{error}</Alert>}
 
           <TextField
             label="Display name"
             value={displayName}
-            onChange={(event) =>
-              setDisplayName(event.target.value)
-            }
+            onChange={(event) => setDisplayName(event.target.value)}
             required
           />
 
           <TextField
             label="Bio"
             value={bio}
-            onChange={(event) =>
-              setBio(event.target.value)
-            }
+            onChange={(event) => setBio(event.target.value)}
             multiline
             minRows={4}
             slotProps={{
@@ -107,16 +88,26 @@ export function EditProfilePage() {
               },
             }}
           />
+          <TextField
+            label="Avatar image URL"
+            value={avatarUrl}
+            onChange={(event) => setAvatarUrl(event.target.value)}
+            placeholder="https://example.com/avatar.png"
+            fullWidth
+          />
 
-          <Stack
-            direction="row"
-            spacing={2}
-          >
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={isSaving}
-            >
+          {avatarUrl && (
+            <Avatar
+              src={avatarUrl}
+              sx={{
+                width: 96,
+                height: 96,
+              }}
+            />
+          )}
+
+          <Stack direction="row" spacing={2}>
+            <Button type="submit" variant="contained" disabled={isSaving}>
               {isSaving ? 'Saving...' : 'Save changes'}
             </Button>
 

@@ -1,5 +1,6 @@
 import {
   AppBar,
+  Avatar,
   Box,
   Button,
   Container,
@@ -8,7 +9,11 @@ import {
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 
+import { useAuth } from '../../features/auth/context/AuthContext';
+
 export function Navbar() {
+  const { user, isAuthenticated, isLoading } = useAuth();
+
   return (
     <AppBar position="sticky" elevation={0}>
       <Container maxWidth="lg">
@@ -36,6 +41,48 @@ export function Navbar() {
             <Button color="inherit" component={Link} to="/library">
               Library
             </Button>
+          </Box>
+
+          <Box
+            sx={{
+              ml: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+            }}
+          >
+            {!isLoading && !isAuthenticated && (
+              <>
+                <Button color="inherit" component={Link} to="/login">
+                  Login
+                </Button>
+
+                <Button color="inherit" component={Link} to="/register">
+                  Register
+                </Button>
+              </>
+            )}
+
+            {!isLoading && isAuthenticated && user && (
+              <Button
+                color="inherit"
+                component={Link}
+                to="/profile"
+                startIcon={
+                  <Avatar
+                    src={user.avatarUrl ?? undefined}
+                    sx={{
+                      width: 28,
+                      height: 28,
+                    }}
+                  >
+                    {user.displayName?.[0] ?? user.username[0]}
+                  </Avatar>
+                }
+              >
+                Profile
+              </Button>
+            )}
           </Box>
         </Toolbar>
       </Container>

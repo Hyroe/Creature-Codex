@@ -28,8 +28,8 @@ export const loginSchema = z.object({
 
 export const updateProfileSchema = z.object({
   displayName: z.string().trim().min(1).max(80).optional(),
-
   bio: z.string().trim().max(500).nullable().optional(),
+  avatarUrl: z.url('Invalid avatar URL').nullable().optional(),
 });
 
 export const changePasswordSchema = z.object({

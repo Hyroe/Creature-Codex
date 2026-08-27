@@ -5,6 +5,7 @@ import { apiFetch } from './apiClient';
 export interface UpdateProfileRequest {
   displayName?: string;
   bio?: string | null;
+  avatarUrl?: string | null;
 }
 
 export interface ChangePasswordRequest {

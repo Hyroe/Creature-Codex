@@ -7,7 +7,6 @@ export function HomePage() {
   return (
     <Box>
       <Hero />
-
       <FeaturedCreatures />
     </Box>
   );
