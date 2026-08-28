@@ -14,23 +14,15 @@ interface LibraryCreatureCardProps {
   creature: Creature;
 }
 
-export function LibraryCreatureCard({
-  creature,
-}: LibraryCreatureCardProps) {
+export function LibraryCreatureCard({ creature }: LibraryCreatureCardProps) {
   const navigate = useNavigate();
 
   return (
     <Card variant="outlined">
-      <CardActionArea
-        onClick={() =>
-          navigate(`/creatures/${creature.id}`)
-        }
-      >
+      <CardActionArea onClick={() => navigate(`/creatures/${creature.slug}`)}>
         <CardContent>
           <Stack spacing={1}>
-            <Typography variant="h6">
-              {creature.name}
-            </Typography>
+            <Typography variant="h6">{creature.name}</Typography>
 
             <Typography
               variant="body2"
@@ -40,10 +32,7 @@ export function LibraryCreatureCard({
               {creature.scientificName}
             </Typography>
 
-            <Typography
-              variant="body2"
-              color="text.secondary"
-            >
+            <Typography variant="body2" color="text.secondary">
               {creature.description}
             </Typography>
           </Stack>

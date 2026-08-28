@@ -30,7 +30,7 @@ export function AppRoutes() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/creatures" element={<CreaturesPage />} />
-          <Route path="/creatures/:id" element={<CreatureDetailsPage />} />
+          <Route path="/creatures/:slug" element={<CreatureDetailsPage />} />
           <Route path="/library" element={<LibraryPage />} />
           <Route path="/library/elements" element={<ElementsLibraryPage />} />
           <Route

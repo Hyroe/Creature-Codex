@@ -1,12 +1,6 @@
-import {
-  Box,
-  Container,
-  Stack,
-} from '@mui/material';
-
+import { useEffect, useState } from 'react';
+import { Box, CircularProgress, Container, Stack } from '@mui/material';
 import { useParams } from 'react-router-dom';
-
-import { creatures } from '../features/creatures/data/creatures';
 
 import { CreatureHero } from '../features/creatures/components/CreatureHero';
 import { CreatureOverview } from '../features/creatures/components/CreatureOverview';
@@ -15,14 +9,49 @@ import { CreatureCombat } from '../features/creatures/components/CreatureCombat'
 import { CreatureGallery } from '../features/creatures/components/CreatureGallery';
 import { EmptyState } from '../components/common/EmptyState';
 
+import { getCreatureBySlug } from '../features/creatures/services/creatureService';
+
+import type { Creature } from '../features/creatures/types/creature';
+
 export function CreatureDetailsPage() {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
 
-  const creature = creatures.find(
-    (creature) => creature.id === id,
-  );
+  const [creature, setCreature] = useState<Creature | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  if (!creature) {
+  useEffect(() => {
+    if (!slug) {
+      setNotFound(true);
+      setIsLoading(false);
+      return;
+    }
+
+    async function loadCreature() {
+      try {
+        const data = await getCreatureBySlug(slug!);
+        setCreature(data);
+      } catch (error) {
+        if (error instanceof Error && error.message === 'CREATURE_NOT_FOUND') {
+          setNotFound(true);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadCreature();
+  }, [slug]);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (notFound || !creature) {
     return (
       <EmptyState
         title="Creature Not Found"
@@ -38,13 +67,9 @@ export function CreatureDetailsPage() {
       <Container maxWidth="lg">
         <Stack spacing={{ xs: 6, md: 10 }}>
           <CreatureHero creature={creature} />
-
           <CreatureOverview creature={creature} />
-
           <CreatureEcology creature={creature} />
-
           <CreatureCombat creature={creature} />
-
           <CreatureGallery creature={creature} />
         </Stack>
       </Container>

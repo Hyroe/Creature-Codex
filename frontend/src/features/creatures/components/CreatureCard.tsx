@@ -17,11 +17,11 @@ interface CreatureCardProps {
 export function CreatureCard({ creature }: CreatureCardProps) {
   return (
     <Card>
-      <CardActionArea component={Link} to={`/creatures/${creature.id}`}>
+      <CardActionArea component={Link} to={`/creatures/${creature.slug}`}>
         <CardMedia
           component="img"
           height="280"
-          image={creature.gallery.coverImage.url}
+          image={creature.gallery.coverImage?.url}
           alt={creature.name}
         />
 

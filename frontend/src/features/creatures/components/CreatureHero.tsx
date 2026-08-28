@@ -29,7 +29,7 @@ export function CreatureHero({ creature }: CreatureHeroProps) {
         >
           <Box
             component="img"
-            src={creature.gallery.coverImage.url}
+            src={creature.gallery.coverImage?.url}
             alt={creature.name}
             sx={{
               width: '100%',
