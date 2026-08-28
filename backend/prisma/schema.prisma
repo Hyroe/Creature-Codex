@@ -20,17 +20,155 @@ enum UserRole {
 model User {
   id String @id @default(cuid())
 
-  username String @unique
+  username    String @unique
   displayName String
-  email String @unique
+  email       String @unique
 
   passwordHash String
 
   role UserRole @default(USER)
 
   avatarUrl String?
-  bio String?
+  bio       String?
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  creatures Creature[]
+}
+
+enum ThreatLevel {
+  LOW
+  MODERATE
+  HIGH
+  EXTREME
+}
+
+enum CreatureStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum AffinityType {
+  WEAKNESS
+  RESISTANCE
+}
+
+enum AffinityTargetType {
+  ELEMENT
+  DAMAGE_TYPE
+  BODY_PART
+}
+
+model Creature {
+  id             String         @id @default(uuid())
+  slug           String         @unique
+  name           String
+  scientificName String?
+  description    String         @db.Text
+  threatLevel    ThreatLevel
+  status         CreatureStatus @default(DRAFT)
+
+  behavior    String? @db.Text
+  lifeCycle   String? @db.Text
+  attackStyle String? @db.Text
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  habitats   CreatureHabitat[]
+  diets      CreatureDiet[]
+  affinities CreatureAffinity[]
+  images     CreatureImage[]
+
+  archivedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Habitat {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String? @db.Text
+  icon        String?
+
+  creatures CreatureHabitat[]
+}
+
+model CreatureHabitat {
+  creatureId String
+  habitatId  String
+
+  creature Creature @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+  habitat  Habitat  @relation(fields: [habitatId], references: [id], onDelete: Cascade)
+
+  @@id([creatureId, habitatId])
+}
+
+model Diet {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String? @db.Text
+  icon        String?
+
+  creatures CreatureDiet[]
+}
+
+model CreatureDiet {
+  creatureId String
+  dietId     String
+
+  creature Creature @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+  diet     Diet     @relation(fields: [dietId], references: [id], onDelete: Cascade)
+
+  @@id([creatureId, dietId])
+}
+
+model CreatureImage {
+  id         String  @id @default(uuid())
+  creatureId String
+  url        String
+  alt        String
+  caption    String?
+  isCover    Boolean @default(false)
+  sortOrder  Int     @default(0)
+
+  creature Creature @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+
+  @@index([creatureId])
+}
+
+model CreatureAffinity {
+  id          String             @id @default(uuid())
+  creatureId  String
+  type        AffinityType
+  targetType  AffinityTargetType
+  targetId    String
+  description String?            @db.Text
+
+  creature Creature @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+
+  @@index([creatureId])
+  @@index([targetType, targetId])
+}
+
+model DamageType {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String? @db.Text
+  icon        String?
+}
+
+model Element {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String? @db.Text
+  icon        String?
+}
+
+model BodyPart {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String? @db.Text
+  icon        String?
 }

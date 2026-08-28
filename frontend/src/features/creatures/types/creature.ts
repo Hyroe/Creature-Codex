@@ -16,7 +16,7 @@ export interface Creature {
   slug: string;
 
   name: string;
-  scientificName: string;
+  scientificName?: string;
   description: string;
   threatLevel: ThreatLevel;
 

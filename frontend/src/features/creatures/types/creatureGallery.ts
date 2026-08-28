@@ -6,6 +6,6 @@ export interface CreatureImage {
 }
 
 export interface CreatureGallery {
-  coverImage: CreatureImage;
+  coverImage: CreatureImage | null;
   images: CreatureImage[];
 }

@@ -12,8 +12,6 @@ interface TokenPayload {
   type: 'access' | 'refresh';
 }
 
-
-
 export function generateAccessToken(user: {
   id: string;
   email: string;
@@ -129,10 +127,7 @@ export async function loginUser(input: LoginInput) {
     throw new Error('INVALID_CREDENTIALS');
   }
 
-  const validPassword = await argon2.verify(
-    user.passwordHash,
-    input.password,
-  );
+  const validPassword = await argon2.verify(user.passwordHash, input.password);
 
   if (!validPassword) {
     throw new Error('INVALID_CREDENTIALS');
@@ -163,10 +158,7 @@ export async function loginUser(input: LoginInput) {
 
 export function verifyAccessToken(token: string): TokenPayload {
   try {
-    const payload = jwt.verify(
-      token,
-      JWT_CONFIG.accessSecret
-    ) as TokenPayload;
+    const payload = jwt.verify(token, JWT_CONFIG.accessSecret) as TokenPayload;
 
     if (payload.type !== 'access') {
       throw new Error();
@@ -180,10 +172,7 @@ export function verifyAccessToken(token: string): TokenPayload {
 
 export function verifyRefreshToken(token: string): TokenPayload {
   try {
-    const payload = jwt.verify(
-      token,
-      JWT_CONFIG.refreshSecret
-    ) as TokenPayload;
+    const payload = jwt.verify(token, JWT_CONFIG.refreshSecret) as TokenPayload;
 
     if (payload.type !== 'refresh') {
       throw new Error();

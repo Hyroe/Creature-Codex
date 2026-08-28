@@ -3,6 +3,7 @@ import cors from 'cors';
 
 import userRoutes from './routes/userRoutes';
 import authRoutes from './routes/authRoutes';
+import creatureRoutes from './routes/creatureRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import cookieParser from 'cookie-parser';
 
@@ -26,5 +27,6 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/creatures', creatureRoutes);
 
 app.use(errorHandler);
