@@ -37,6 +37,24 @@ interface ApiCreature {
   }[];
 }
 
+export interface LibraryEntity {
+  id: string;
+  name: string;
+  description: string | null;
+  icon?: string | null;
+}
+
+export interface AffinityLibraryDetails {
+  entity: LibraryEntity;
+  weaknesses: Creature[];
+  resistances: Creature[];
+}
+
+export interface RelationLibraryDetails {
+  entity: LibraryEntity;
+  creatures: Creature[];
+}
+
 function mapThreatLevel(value: ApiCreature['threatLevel']): ThreatLevel {
   const levels: Record<ApiCreature['threatLevel'], ThreatLevel> = {
     LOW: 'Low',
@@ -48,7 +66,7 @@ function mapThreatLevel(value: ApiCreature['threatLevel']): ThreatLevel {
   return levels[value];
 }
 
-function mapCreature(creature: ApiCreature): Creature {
+export function mapCreature(creature: ApiCreature): Creature {
   const cover = creature.images.find((image) => image.isCover) ?? null;
 
   return {

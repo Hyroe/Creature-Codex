@@ -7,36 +7,27 @@ import { diets } from '../data/diets';
 import { elements } from '../data/elements';
 import { damageTypes } from '../data/damageTypes';
 import { bodyParts } from '../data/bodyParts';
-import { creatures } from '../data/creatures';
 
-export function getCreatureHabitats(
-  creature: Creature,
-): Habitat[] {
+export function getCreatureHabitats(creature: Creature): Habitat[] {
   return creature.ecology.habitatIds
     .map((id) => habitats.find((habitat) => habitat.id === id))
     .filter((habitat): habitat is Habitat => habitat !== undefined);
 }
 
-export function getCreatureDiets(
-  creature: Creature,
-): Diet[] {
+export function getCreatureDiets(creature: Creature): Diet[] {
   return creature.ecology.dietIds
     .map((id) => diets.find((diet) => diet.id === id))
     .filter((diet): diet is Diet => diet !== undefined);
 }
 
-export function getCreatureAffinities(
-  creature: Creature,
-) {
+export function getCreatureAffinities(creature: Creature) {
   return creature.combat.affinities
     .map((affinity) => {
       let target;
 
       switch (affinity.targetType) {
         case 'Element':
-          target = elements.find(
-            (element) => element.id === affinity.targetId,
-          );
+          target = elements.find((element) => element.id === affinity.targetId);
           break;
 
         case 'DamageType':
@@ -64,17 +55,13 @@ export function getCreatureAffinities(
     .filter((affinity) => affinity !== undefined);
 }
 
-export function getCreatureWeaknesses(
-  creature: Creature,
-) {
+export function getCreatureWeaknesses(creature: Creature) {
   return getCreatureAffinities(creature).filter(
     (affinity) => affinity.type === 'Weakness',
   );
 }
 
-export function getCreatureResistances(
-  creature: Creature,
-) {
+export function getCreatureResistances(creature: Creature) {
   return getCreatureAffinities(creature).filter(
     (affinity) => affinity.type === 'Resistance',
   );
@@ -87,8 +74,7 @@ export function getCreaturesWithAffinityTarget(
   return creatures.filter((creature) =>
     creature.combat.affinities.some(
       (affinity) =>
-        affinity.targetType === targetType &&
-        affinity.targetId === targetId,
+        affinity.targetType === targetType && affinity.targetId === targetId,
     ),
   );
 }
@@ -126,19 +112,13 @@ export function getAffinityTargetName(
 ) {
   switch (targetType) {
     case 'Element':
-      return elements.find(
-        (element) => element.id === targetId,
-      )?.name;
+      return elements.find((element) => element.id === targetId)?.name;
 
     case 'DamageType':
-      return damageTypes.find(
-        (damageType) => damageType.id === targetId,
-      )?.name;
+      return damageTypes.find((damageType) => damageType.id === targetId)?.name;
 
     case 'BodyPart':
-      return bodyParts.find(
-        (bodyPart) => bodyPart.id === targetId,
-      )?.name;
+      return bodyParts.find((bodyPart) => bodyPart.id === targetId)?.name;
 
     default:
       return undefined;

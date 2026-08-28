@@ -1,17 +1,11 @@
-import {
-  Box,
-  Container,
-  Grid,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Box, Container, Grid, Stack, Typography } from '@mui/material';
 
 import { LibraryEntityCard } from './LibraryEntityCard';
 
 interface LibraryEntity {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
   type?: string;
 }
 
@@ -40,16 +34,11 @@ export function LibrarySection({
               maxWidth: 760,
             }}
           >
-            <Typography
-              variant="overline"
-              color="text.secondary"
-            >
+            <Typography variant="overline" color="text.secondary">
               {eyebrow}
             </Typography>
 
-            <Typography variant="h2">
-              {title}
-            </Typography>
+            <Typography variant="h2">{title}</Typography>
 
             <Typography
               color="text.secondary"
@@ -73,7 +62,7 @@ export function LibrarySection({
               >
                 <LibraryEntityCard
                   name={entity.name}
-                  description={entity.description}
+                  description={entity.description || ''}
                   type={entity.type}
                   path={`${basePath}/${entity.id}`}
                 />

@@ -1,62 +1,81 @@
-import {
-  Grid,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { useEffect, useState } from 'react';
+
+import { Box, CircularProgress, Grid, Stack, Typography } from '@mui/material';
 
 import { useParams } from 'react-router-dom';
-
-import { habitats } from "../../creatures/data/habitats";
-
-import { creatures } from '../../creatures/data/creatures';
 
 import { LibraryEntityDetails } from '../components/LibraryEntityDetails';
 import { LibraryCreatureCard } from '../components/LibraryCreatureCard';
 import { EmptyState } from '../../../components/common/EmptyState';
 
+import {
+  getHabitat,
+  type RelationLibraryDetails,
+} from '../services/libraryService';
+
 export function HabitatDetailsPage() {
   const { id } = useParams<{ id: string }>();
 
-  const habitat = habitats.find(
-    (habitat) => habitat.id === id,
-  );
+  const [data, setData] = useState<RelationLibraryDetails | null>(null);
 
-  if (!habitat) {
-  return (
-    <EmptyState
-      title="Habitat Not Found"
-      description="This habitat does not exist in the Creature Codex."
-      actionLabel="Back to Habitats"
-      actionTo="/library/habitats"
-    />
-  );
-}   
+  const [isLoading, setIsLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  const relatedCreatures = creatures.filter(
-    (creature) =>
-      creature.ecology.habitatIds.includes(habitat.id),
-  );
+  useEffect(() => {
+    if (!id) {
+      setNotFound(true);
+      setIsLoading(false);
+      return;
+    }
+
+    getHabitat(id)
+      .then(setData)
+      .catch((error) => {
+        if (error instanceof Error && error.message === 'NOT_FOUND') {
+          setNotFound(true);
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (notFound || !data) {
+    return (
+      <EmptyState
+        title="Habitat Not Found"
+        description="This habitat does not exist in the Creature Codex."
+        actionLabel="Back to Habitats"
+        actionTo="/library/habitats"
+      />
+    );
+  }
 
   return (
     <LibraryEntityDetails
       eyebrow="Library / Habitats"
-      name={habitat.name}
-      description={habitat.description}
+      name={data.entity.name}
+      description={data.entity.description ?? ''}
       type="Habitat"
     >
       <Stack spacing={3}>
-        <Typography variant="h4">
-          Documented Creatures
-        </Typography>
+        <Typography variant="h4">Documented Creatures</Typography>
 
-        {relatedCreatures.length === 0 ? (
+        {data.creatures.length === 0 ? (
           <Typography color="text.secondary">
-            No creatures have been documented in this
-            habitat.
+            No creatures have been documented in this habitat.
           </Typography>
         ) : (
           <Grid container spacing={3}>
-            {relatedCreatures.map((creature) => (
+            {data.creatures.map((creature) => (
               <Grid
                 key={creature.id}
                 size={{
@@ -65,9 +84,7 @@ export function HabitatDetailsPage() {
                   md: 4,
                 }}
               >
-                <LibraryCreatureCard
-                  creature={creature}
-                />
+                <LibraryCreatureCard creature={creature} />
               </Grid>
             ))}
           </Grid>

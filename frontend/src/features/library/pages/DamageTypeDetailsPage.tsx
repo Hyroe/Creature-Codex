@@ -1,73 +1,82 @@
-import {
-  Grid,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { useEffect, useState } from 'react';
+
+import { Box, CircularProgress, Grid, Stack, Typography } from '@mui/material';
 
 import { useParams } from 'react-router-dom';
-
-import { damageTypes } from "../../creatures/data/damageTypes";
-
-import {
-  getCreaturesResistantTo,
-  getCreaturesWeakTo,
-} from '../../creatures/selectors/creatureSelectors';
 
 import { LibraryEntityDetails } from '../components/LibraryEntityDetails';
 import { LibraryCreatureCard } from '../components/LibraryCreatureCard';
 import { EmptyState } from '../../../components/common/EmptyState';
 
+import {
+  getDamageType,
+  type AffinityLibraryDetails,
+} from '../services/libraryService';
+
 export function DamageTypeDetailsPage() {
   const { id } = useParams<{ id: string }>();
 
-  const damageType = damageTypes.find(
-    (damageType) => damageType.id === id,
-  );
+  const [data, setData] = useState<AffinityLibraryDetails | null>(null);
 
-  if (!damageType) {
-  return (
-    <EmptyState
-      title="Damage Type Not Found"
-      description="This damage type does not exist in the Creature Codex."
-      actionLabel="Back to Damage Types"
-      actionTo="/library/damage-types"
-    />
-  );
-}
+  const [isLoading, setIsLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  const weakCreatures = getCreaturesWeakTo(
-    'DamageType',
-    damageType.id,
-  );
+  useEffect(() => {
+    if (!id) {
+      setNotFound(true);
+      setIsLoading(false);
+      return;
+    }
 
-  const resistantCreatures = getCreaturesResistantTo(
-    'DamageType',
-    damageType.id,
-  );
+    getDamageType(id)
+      .then(setData)
+      .catch((error) => {
+        if (error instanceof Error && error.message === 'NOT_FOUND') {
+          setNotFound(true);
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (notFound || !data) {
+    return (
+      <EmptyState
+        title="Damage Type Not Found"
+        description="This damage type does not exist in the Creature Codex."
+        actionLabel="Back to Damage Types"
+        actionTo="/library/damage-types"
+      />
+    );
+  }
 
   return (
     <LibraryEntityDetails
       eyebrow="Library / Damage Types"
-      name={damageType.name}
-      description={damageType.description}
+      name={data.entity.name}
+      description={data.entity.description ?? ''}
       type="Damage Type"
     >
       <Stack spacing={6}>
-
-        {/* Weaknesses */}
         <Stack spacing={3}>
-          <Typography variant="h4">
-            Weakness
-          </Typography>
+          <Typography variant="h4">Weakness</Typography>
 
-          {weakCreatures.length === 0 ? (
+          {data.weaknesses.length === 0 ? (
             <Typography color="text.secondary">
-              No documented creatures are weak to this
-              damage type.
+              No documented creatures are weak to this damage type.
             </Typography>
           ) : (
             <Grid container spacing={3}>
-              {weakCreatures.map((creature) => (
+              {data.weaknesses.map((creature) => (
                 <Grid
                   key={creature.id}
                   size={{
@@ -76,29 +85,23 @@ export function DamageTypeDetailsPage() {
                     md: 4,
                   }}
                 >
-                  <LibraryCreatureCard
-                    creature={creature}
-                  />
+                  <LibraryCreatureCard creature={creature} />
                 </Grid>
               ))}
             </Grid>
           )}
         </Stack>
 
-        {/* Resistances */}
         <Stack spacing={3}>
-          <Typography variant="h4">
-            Resistance
-          </Typography>
+          <Typography variant="h4">Resistance</Typography>
 
-          {resistantCreatures.length === 0 ? (
+          {data.resistances.length === 0 ? (
             <Typography color="text.secondary">
-              No documented creatures resist this damage
-              type.
+              No documented creatures resist this damage type.
             </Typography>
           ) : (
             <Grid container spacing={3}>
-              {resistantCreatures.map((creature) => (
+              {data.resistances.map((creature) => (
                 <Grid
                   key={creature.id}
                   size={{
@@ -107,15 +110,12 @@ export function DamageTypeDetailsPage() {
                     md: 4,
                   }}
                 >
-                  <LibraryCreatureCard
-                    creature={creature}
-                  />
+                  <LibraryCreatureCard creature={creature} />
                 </Grid>
               ))}
             </Grid>
           )}
         </Stack>
-
       </Stack>
     </LibraryEntityDetails>
   );

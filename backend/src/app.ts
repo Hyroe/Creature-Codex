@@ -1,11 +1,12 @@
 import express from 'express';
 import cors from 'cors';
+import { errorHandler } from './middleware/errorHandler';
 
 import userRoutes from './routes/userRoutes';
 import authRoutes from './routes/authRoutes';
 import creatureRoutes from './routes/creatureRoutes';
-import { errorHandler } from './middleware/errorHandler';
 import cookieParser from 'cookie-parser';
+import libraryRoutes from './routes/libraryRoutes';
 
 export const app = express();
 
@@ -28,5 +29,6 @@ app.get('/health', (_req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/creatures', creatureRoutes);
+app.use('/api/library', libraryRoutes);
 
 app.use(errorHandler);

@@ -1,73 +1,108 @@
-import {
-  Grid,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { useEffect, useState } from 'react';
+
+import { Box, CircularProgress, Grid, Stack, Typography } from '@mui/material';
 
 import { useParams } from 'react-router-dom';
-
-import { bodyParts } from "../../creatures/data/bodyParts";
-
-import {
-  getCreaturesResistantTo,
-  getCreaturesWeakTo,
-} from '../../creatures/selectors/creatureSelectors';
 
 import { LibraryEntityDetails } from '../components/LibraryEntityDetails';
 import { LibraryCreatureCard } from '../components/LibraryCreatureCard';
 import { EmptyState } from '../../../components/common/EmptyState';
 
+import {
+  getBodyPart,
+  type AffinityLibraryDetails,
+} from '../services/libraryService';
+
 export function BodyPartDetailsPage() {
   const { id } = useParams<{ id: string }>();
 
-  const bodyPart = bodyParts.find(
-    (bodyPart) => bodyPart.id === id,
-  );
+  const [data, setData] = useState<AffinityLibraryDetails | null>(null);
 
-  if (!bodyPart) {
-  return (
-    <EmptyState
-      title="Body Part Not Found"
-      description="This body part does not exist in the Creature Codex."
-      actionLabel="Back to Body Parts"
-      actionTo="/library/body-parts"
-    />
-  );
-}   
+  const [isLoading, setIsLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  const weakCreatures = getCreaturesWeakTo(
-    'BodyPart',
-    bodyPart.id,
-  );
+  useEffect(() => {
+    if (!id) {
+      setNotFound(true);
+      setIsLoading(false);
+      return;
+    }
 
-  const resistantCreatures = getCreaturesResistantTo(
-    'BodyPart',
-    bodyPart.id,
-  );
+    getBodyPart(id)
+      .then(setData)
+      .catch((error) => {
+        if (error instanceof Error && error.message === 'NOT_FOUND') {
+          setNotFound(true);
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (notFound || !data) {
+    return (
+      <EmptyState
+        title="Body Part Not Found"
+        description="This body part does not exist in the Creature Codex."
+        actionLabel="Back to Body Parts"
+        actionTo="/library/body-parts"
+      />
+    );
+  }
 
   return (
     <LibraryEntityDetails
       eyebrow="Library / Body Parts"
-      name={bodyPart.name}
-      description={bodyPart.description}
+      name={data.entity.name}
+      description={data.entity.description ?? ''}
       type="Body Part"
     >
       <Stack spacing={6}>
-
-        {/* Weaknesses */}
         <Stack spacing={3}>
-          <Typography variant="h4">
-            Weakness
-          </Typography>
+          <Typography variant="h4">Weakness</Typography>
 
-          {weakCreatures.length === 0 ? (
+          {data.weaknesses.length === 0 ? (
             <Typography color="text.secondary">
-              No documented creatures are weak to this
+              No documented creatures are weak to this body part.
+            </Typography>
+          ) : (
+            <Grid container spacing={3}>
+              {data.weaknesses.map((creature) => (
+                <Grid
+                  key={creature.id}
+                  size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 4,
+                  }}
+                >
+                  <LibraryCreatureCard creature={creature} />
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </Stack>
+
+        <Stack spacing={3}>
+          <Typography variant="h4">Resistance</Typography>
+
+          {data.resistances.length === 0 ? (
+            <Typography color="text.secondary">
+              No documented creatures have a resistance associated with this
               body part.
             </Typography>
           ) : (
             <Grid container spacing={3}>
-              {weakCreatures.map((creature) => (
+              {data.resistances.map((creature) => (
                 <Grid
                   key={creature.id}
                   size={{
@@ -76,46 +111,12 @@ export function BodyPartDetailsPage() {
                     md: 4,
                   }}
                 >
-                  <LibraryCreatureCard
-                    creature={creature}
-                  />
+                  <LibraryCreatureCard creature={creature} />
                 </Grid>
               ))}
             </Grid>
           )}
         </Stack>
-
-        {/* Resistances */}
-        <Stack spacing={3}>
-          <Typography variant="h4">
-            Resistance
-          </Typography>
-
-          {resistantCreatures.length === 0 ? (
-            <Typography color="text.secondary">
-              No documented creatures have a resistance
-              associated with this body part.
-            </Typography>
-          ) : (
-            <Grid container spacing={3}>
-              {resistantCreatures.map((creature) => (
-                <Grid
-                  key={creature.id}
-                  size={{
-                    xs: 12,
-                    sm: 6,
-                    md: 4,
-                  }}
-                >
-                  <LibraryCreatureCard
-                    creature={creature}
-                  />
-                </Grid>
-              ))}
-            </Grid>
-          )}
-        </Stack>
-
       </Stack>
     </LibraryEntityDetails>
   );
