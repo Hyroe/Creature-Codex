@@ -58,9 +58,6 @@ export async function getCreatures() {
       status: 'PUBLISHED',
       archivedAt: null,
     },
-    orderBy: {
-      createdAt: 'desc',
-    },
     include: {
       author: {
         select: {
@@ -93,7 +90,7 @@ export async function getCreatures() {
 export async function getCreatureBySlug(slug: string) {
   const prisma = getPrisma();
 
-  return prisma.creature.findUnique({
+  const creature = await prisma.creature.findFirst({
     where: {
       slug,
       status: 'PUBLISHED',
@@ -126,6 +123,17 @@ export async function getCreatureBySlug(slug: string) {
       },
     },
   });
+
+  if (!creature) {
+    return null;
+  }
+
+  const affinities = await resolveAffinityTargets(creature.affinities);
+
+  return {
+    ...creature,
+    affinities,
+  };
 }
 
 export async function updateCreature(
@@ -257,4 +265,53 @@ export async function archiveCreature(creatureId: string, authorId: string) {
       archivedAt: new Date(),
     },
   });
+}
+
+async function resolveAffinityTargets(
+  affinities: {
+    id: string;
+    type: string;
+    targetType: string;
+    targetId: string;
+    description: string | null;
+  }[],
+) {
+  const prisma = getPrisma();
+
+  return Promise.all(
+    affinities.map(async (affinity) => {
+      let target = null;
+
+      switch (affinity.targetType) {
+        case 'ELEMENT':
+          target = await prisma.element.findUnique({
+            where: {
+              id: affinity.targetId,
+            },
+          });
+          break;
+
+        case 'DAMAGE_TYPE':
+          target = await prisma.damageType.findUnique({
+            where: {
+              id: affinity.targetId,
+            },
+          });
+          break;
+
+        case 'BODY_PART':
+          target = await prisma.bodyPart.findUnique({
+            where: {
+              id: affinity.targetId,
+            },
+          });
+          break;
+      }
+
+      return {
+        ...affinity,
+        target,
+      };
+    }),
+  );
 }

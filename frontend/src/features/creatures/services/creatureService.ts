@@ -1,6 +1,8 @@
 import { apiFetch } from '../../../services/apiClient';
 
 import type { Creature, ThreatLevel } from '../types/creature';
+import { Diet } from '../types/diet';
+import { Habitat } from '../types/habitat';
 
 interface ApiCreature {
   id: string;
@@ -19,13 +21,25 @@ interface ApiCreature {
 
   habitats: {
     habitatId: string;
+    habitat: {
+      id: string;
+      name: string;
+      description: string | null;
+      icon: string | null;
+    };
   }[];
 
   diets: {
     dietId: string;
+    diet: {
+      id: string;
+      name: string;
+      description: string | null;
+      icon: string | null;
+    };
   }[];
 
-  affinities: Creature['combat']['affinities'];
+  affinities: ApiAffinity[];
 
   images: {
     id: string;
@@ -35,6 +49,32 @@ interface ApiCreature {
     isCover: boolean;
     sortOrder: number;
   }[];
+}
+
+interface ApiAffinity {
+  id: string;
+  type: 'WEAKNESS' | 'RESISTANCE';
+  targetType: 'ELEMENT' | 'DAMAGE_TYPE' | 'BODY_PART';
+  targetId: string;
+  description: string | null;
+
+  target: {
+    id: string;
+    name: string;
+    description: string | null;
+    icon: string | null;
+  } | null;
+}
+
+export interface CreatureEcology {
+  habitatIds: string[];
+  dietIds: string[];
+
+  habitats: Habitat[];
+  diets: Diet[];
+
+  behavior: string;
+  lifeCycle: string;
 }
 
 export interface LibraryEntity {
@@ -82,14 +122,46 @@ export function mapCreature(creature: ApiCreature): Creature {
 
     ecology: {
       habitatIds: creature.habitats.map((item) => item.habitatId),
+
       dietIds: creature.diets.map((item) => item.dietId),
+
+      habitats: creature.habitats.map((item) => ({
+        id: item.habitat.id,
+        name: item.habitat.name,
+        description: item.habitat.description ?? '',
+        icon: item.habitat.icon ?? undefined,
+      })),
+
+      diets: creature.diets.map((item) => ({
+        id: item.diet.id,
+        name: item.diet.name,
+        description: item.diet.description ?? '',
+        icon: item.diet.icon ?? undefined,
+      })),
+
       behavior: creature.behavior ?? '',
       lifeCycle: creature.lifeCycle ?? '',
     },
 
     combat: {
       attackStyle: creature.attackStyle ?? '',
-      affinities: creature.affinities,
+
+      affinities: creature.affinities
+        .filter((affinity) => affinity.target != null)
+        .map((affinity) => ({
+          id: affinity.id,
+          type: mapAffinityType(affinity.type),
+          targetType: mapAffinityTargetType(affinity.targetType),
+          targetId: affinity.targetId,
+          description: affinity.description ?? undefined,
+
+          target: {
+            id: affinity.target!.id,
+            name: affinity.target!.name,
+            description: affinity.target!.description ?? '',
+            icon: affinity.target!.icon ?? undefined,
+          },
+        })),
     },
 
     gallery: {
@@ -140,4 +212,21 @@ export async function getCreatureBySlug(slug: string): Promise<Creature> {
   const data = await response.json();
 
   return mapCreature(data.creature);
+}
+
+function mapAffinityType(type: 'WEAKNESS' | 'RESISTANCE') {
+  return type === 'WEAKNESS' ? 'Weakness' : 'Resistance';
+}
+
+function mapAffinityTargetType(type: 'ELEMENT' | 'DAMAGE_TYPE' | 'BODY_PART') {
+  switch (type) {
+    case 'ELEMENT':
+      return 'Element';
+
+    case 'DAMAGE_TYPE':
+      return 'DamageType';
+
+    case 'BODY_PART':
+      return 'BodyPart';
+  }
 }

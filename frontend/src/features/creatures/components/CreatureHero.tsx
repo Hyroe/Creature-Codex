@@ -2,6 +2,7 @@ import { Box, Container } from '@mui/material';
 
 import type { Creature } from '../types/creature';
 import { CreatureHeader } from './CreatureHeader';
+import { CreatureImage } from './CreatureImage';
 
 interface CreatureHeroProps {
   creature: Creature;
@@ -27,16 +28,10 @@ export function CreatureHero({ creature }: CreatureHeroProps) {
             alignItems: 'center',
           }}
         >
-          <Box
-            component="img"
+          <CreatureImage
             src={creature.gallery.coverImage?.url}
-            alt={creature.name}
-            sx={{
-              width: '100%',
-              height: { xs: 350, md: 550 },
-              objectFit: 'cover',
-              borderRadius: 2,
-            }}
+            alt={creature.gallery.coverImage?.alt ?? creature.name}
+            height={550}
           />
 
           <CreatureHeader creature={creature} />

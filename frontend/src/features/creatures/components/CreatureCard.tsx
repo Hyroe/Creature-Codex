@@ -9,6 +9,7 @@ import {
 import { Link } from 'react-router-dom';
 
 import type { Creature } from '../types/creature';
+import { CreatureImage } from './CreatureImage';
 
 interface CreatureCardProps {
   creature: Creature;
@@ -18,11 +19,9 @@ export function CreatureCard({ creature }: CreatureCardProps) {
   return (
     <Card>
       <CardActionArea component={Link} to={`/creatures/${creature.slug}`}>
-        <CardMedia
-          component="img"
-          height="280"
-          image={creature.gallery.coverImage?.url}
-          alt={creature.name}
+        <CreatureImage
+          src={creature.gallery.coverImage?.url}
+          alt={creature.gallery.coverImage?.alt ?? creature.name}
         />
 
         <CardContent>
