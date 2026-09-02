@@ -106,6 +106,54 @@ function mapThreatLevel(value: ApiCreature['threatLevel']): ThreatLevel {
   return levels[value];
 }
 
+export interface CreateCreatureRequest {
+  name: string;
+  scientificName?: string | null;
+  description: string;
+
+  threatLevel: 'LOW' | 'MODERATE' | 'HIGH' | 'EXTREME';
+
+  behavior?: string | null;
+  lifeCycle?: string | null;
+  attackStyle?: string | null;
+
+  habitatIds: string[];
+  dietIds: string[];
+
+  affinities: {
+    type: 'WEAKNESS' | 'RESISTANCE';
+    targetType: 'ELEMENT' | 'DAMAGE_TYPE' | 'BODY_PART';
+    targetId: string;
+    description?: string | null;
+  }[];
+
+  coverImageUrl?: string | null;
+
+  galleryImages?: {
+    url: string;
+    alt?: string | null;
+    caption?: string | null;
+  }[];
+}
+
+export async function createCreature(data: CreateCreatureRequest) {
+  const response = await apiFetch('/api/creatures', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => null);
+
+    throw new Error(error?.message ?? 'Unable to create creature');
+  }
+
+  return response.json();
+}
+
 export function mapCreature(creature: ApiCreature): Creature {
   const cover = creature.images.find((image) => image.isCover) ?? null;
 
@@ -197,6 +245,17 @@ export async function getCreatures(): Promise<Creature[]> {
 
   return data.creatures.map(mapCreature);
 }
+export async function getMyCreatureById(id: string): Promise<Creature> {
+  const response = await apiFetch(`/api/creatures/mine/${id}`);
+
+  if (!response.ok) {
+    throw new Error('Unable to load creature');
+  }
+
+  const data = await response.json();
+
+  return mapCreature(data.creature);
+}
 
 export async function getCreatureBySlug(slug: string): Promise<Creature> {
   const response = await apiFetch(`/api/creatures/${slug}`);
@@ -212,6 +271,68 @@ export async function getCreatureBySlug(slug: string): Promise<Creature> {
   const data = await response.json();
 
   return mapCreature(data.creature);
+}
+
+export async function getMyCreatures(): Promise<Creature[]> {
+  const response = await apiFetch('/api/creatures/mine');
+
+  if (!response.ok) {
+    throw new Error('Unable to load your creatures');
+  }
+
+  const data = await response.json();
+
+  return data.creatures.map(mapCreature);
+}
+
+export async function updateCreatureStatus(
+  id: string,
+  status: 'DRAFT' | 'PUBLISHED',
+) {
+  const response = await apiFetch(`/api/creatures/${id}/status`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ status }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Unable to update creature status');
+  }
+
+  return response.json();
+}
+
+export async function updateCreature(
+  id: string,
+  data: Partial<CreateCreatureRequest>,
+) {
+  const response = await apiFetch(`/api/creatures/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => null);
+
+    throw new Error(error?.message ?? 'Unable to update creature');
+  }
+
+  return response.json();
+}
+
+export async function archiveCreature(id: string) {
+  const response = await apiFetch(`/api/creatures/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    throw new Error('Unable to archive creature');
+  }
 }
 
 function mapAffinityType(type: 'WEAKNESS' | 'RESISTANCE') {

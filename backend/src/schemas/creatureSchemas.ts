@@ -14,6 +14,38 @@ export const createCreatureSchema = z.object({
   lifeCycle: z.string().trim().nullable().optional(),
 
   attackStyle: z.string().trim().nullable().optional(),
+
+  habitatIds: z.array(z.string()).default([]),
+
+  dietIds: z.array(z.string()).default([]),
+
+  coverImageUrl: z.string().trim().url().nullable().optional(),
+
+  galleryImages: z
+    .array(
+      z.object({
+        url: z.string().trim().url(),
+
+        alt: z.string().trim().max(200).nullable().optional(),
+
+        caption: z.string().trim().max(500).nullable().optional(),
+      }),
+    )
+    .default([]),
+
+  affinities: z
+    .array(
+      z.object({
+        type: z.enum(['WEAKNESS', 'RESISTANCE']),
+
+        targetType: z.enum(['ELEMENT', 'DAMAGE_TYPE', 'BODY_PART']),
+
+        targetId: z.string(),
+
+        description: z.string().trim().nullable().optional(),
+      }),
+    )
+    .default([]),
 });
 
 export const updateCreatureSchema = createCreatureSchema

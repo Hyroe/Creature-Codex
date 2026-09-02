@@ -16,6 +16,7 @@ import {
   getMyCreatures,
   updateCreatureStatus,
   archiveCreature,
+  getMyCreatureById,
 } from '../services/creatureService';
 
 export async function create(req: Request, res: Response) {
@@ -103,7 +104,7 @@ export async function update(req: Request, res: Response) {
   }
 
   try {
-    const creature = await updateCreature(id, req.user.userId, result.data);
+    const creature = await updateCreature(req.user.userId, id, result.data);
 
     res.status(200).json({
       creature,
@@ -238,4 +239,27 @@ export async function archive(req: Request, res: Response) {
 
     throw error;
   }
+}
+
+export async function getMyCreature(req: Request, res: Response) {
+  const rawId = req.params.id;
+  const id = Array.isArray(rawId) ? rawId[0] : rawId;
+
+  if (!id) {
+    res.status(400).json({
+      error: 'Invalid creature id',
+    });
+    return;
+  }
+
+  const creature = await getMyCreatureById(req.user!.userId, id);
+
+  if (!creature) {
+    res.status(404).json({
+      error: 'Creature not found',
+    });
+    return;
+  }
+
+  res.json({ creature });
 }

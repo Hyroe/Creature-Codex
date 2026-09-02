@@ -4,12 +4,15 @@ import {
   Box,
   Button,
   Container,
+  IconButton,
   Toolbar,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 
 import { useAuth } from '../../features/auth/context/AuthContext';
+import { Add } from '@mui/icons-material';
 
 export function Navbar() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -37,7 +40,9 @@ export function Navbar() {
             <Button color="inherit" component={Link} to="/creatures">
               Creatures
             </Button>
-
+            <Button color="inherit" component={Link} to="/my-creatures">
+              My Creatures
+            </Button>
             <Button color="inherit" component={Link} to="/library">
               Library
             </Button>
@@ -62,6 +67,17 @@ export function Navbar() {
                 </Button>
               </>
             )}
+
+            <Tooltip title="Create creature">
+              <IconButton
+                color="inherit"
+                component={Link}
+                to="/creatures/new"
+                aria-label="Create creature"
+              >
+                <Add />
+              </IconButton>
+            </Tooltip>
 
             {!isLoading && isAuthenticated && user && (
               <Button

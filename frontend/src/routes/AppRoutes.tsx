@@ -21,6 +21,9 @@ import { ProfilePage } from '../pages/ProfilePage';
 import { ProtectedRoute } from '../components/common/ProtectedRoute';
 import { EditProfilePage } from '../pages/EditProfilePage';
 import { ChangePasswordPage } from '../pages/ChangePasswordPage';
+import { CreateCreaturePage } from '../pages/CreateCreaturePage';
+import { MyCreaturesPage } from '../pages/MyCreaturesPage';
+import { EditCreaturePage } from '../pages/EditCreaturePage';
 
 export function AppRoutes() {
   return (
@@ -68,6 +71,9 @@ export function AppRoutes() {
               path="/profile/change-password"
               element={<ChangePasswordPage />}
             />
+            <Route path="/creatures/new" element={<CreateCreaturePage />} />
+            <Route path="/creatures/:id/edit" element={<EditCreaturePage />} />
+            <Route path="/my-creatures" element={<MyCreaturesPage />} />
           </Route>
           ;
         </Route>
