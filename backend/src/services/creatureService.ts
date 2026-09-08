@@ -529,14 +529,7 @@ async function resolveAffinityTargets(
 export async function getMyCreatureById(userId: string, creatureId: string) {
   const prisma = getPrisma();
 
-  console.log('getMyCreatureById', {
-    userId,
-    creatureId,
-    userIdType: typeof userId,
-    creatureIdType: typeof creatureId,
-  });
-
-  return prisma.creature.findFirst({
+  const creature = await prisma.creature.findFirst({
     where: {
       id: creatureId,
       authorId: userId,
@@ -561,4 +554,15 @@ export async function getMyCreatureById(userId: string, creatureId: string) {
       },
     },
   });
+
+  if (!creature) {
+    return null;
+  }
+
+  const affinities = await resolveAffinityTargets(creature.affinities);
+
+  return {
+    ...creature,
+    affinities,
+  };
 }

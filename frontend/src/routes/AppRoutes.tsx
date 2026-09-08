@@ -24,6 +24,7 @@ import { ChangePasswordPage } from '../pages/ChangePasswordPage';
 import { CreateCreaturePage } from '../pages/CreateCreaturePage';
 import { MyCreaturesPage } from '../pages/MyCreaturesPage';
 import { EditCreaturePage } from '../pages/EditCreaturePage';
+import { CreaturePreviewPage } from '../pages/CreaturePreviewPage';
 
 export function AppRoutes() {
   return (
@@ -74,6 +75,10 @@ export function AppRoutes() {
             <Route path="/creatures/new" element={<CreateCreaturePage />} />
             <Route path="/creatures/:id/edit" element={<EditCreaturePage />} />
             <Route path="/my-creatures" element={<MyCreaturesPage />} />
+            <Route
+              path="/creatures/:id/preview"
+              element={<CreaturePreviewPage />}
+            />
           </Route>
           ;
         </Route>

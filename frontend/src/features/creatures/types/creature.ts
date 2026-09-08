@@ -14,14 +14,14 @@ export type CreatureStatus = 'Draft' | 'Published';
 export interface Creature {
   id: string;
   slug: string;
-
   name: string;
   scientificName?: string;
   description: string;
   threatLevel: ThreatLevel;
-
   authorId: string;
   status: CreatureStatus;
+
+  updatedAt?: string;
 
   ecology: CreatureEcology;
   combat: CreatureCombat;

@@ -15,6 +15,8 @@ interface ApiCreature {
   authorId: string;
   status: 'DRAFT' | 'PUBLISHED';
 
+  updatedAt: string;
+
   behavior: string | null;
   lifeCycle: string | null;
   attackStyle: string | null;
@@ -167,6 +169,8 @@ export function mapCreature(creature: ApiCreature): Creature {
 
     authorId: creature.authorId,
     status: creature.status === 'PUBLISHED' ? 'Published' : 'Draft',
+
+    updatedAt: creature.updatedAt,
 
     ecology: {
       habitatIds: creature.habitats.map((item) => item.habitatId),
