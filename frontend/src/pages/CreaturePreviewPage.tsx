@@ -35,6 +35,8 @@ export function CreaturePreviewPage() {
 
   const [error, setError] = useState<string | null>(null);
 
+  const [missingFields, setMissingFields] = useState<string[]>([]);
+
   useEffect(() => {
     if (!id) {
       setError('Invalid creature id');
@@ -64,13 +66,26 @@ export function CreaturePreviewPage() {
     }
 
     setError(null);
+    setMissingFields([]);
     setIsPublishing(true);
 
     try {
       await updateCreatureStatus(id, 'PUBLISHED');
 
-      navigate(`/creatures/${creature.slug}`, { replace: true });
+      navigate(`/creatures/${creature.slug}`, {
+        replace: true,
+      });
     } catch (error) {
+      if (error && typeof error === 'object' && 'missingFields' in error) {
+        const publishError = error as {
+          missingFields?: string[];
+        };
+
+        setMissingFields(publishError.missingFields ?? []);
+
+        return;
+      }
+
       setError(
         error instanceof Error ? error.message : 'Unable to publish creature',
       );
@@ -112,6 +127,13 @@ export function CreaturePreviewPage() {
           </Alert>
 
           {error && <Alert severity="error">{error}</Alert>}
+
+          {missingFields.length > 0 && (
+            <Alert severity="warning">
+              This creature cannot be published yet. Complete:{' '}
+              {missingFields.join(', ')}.
+            </Alert>
+          )}
 
           <Stack
             direction={{

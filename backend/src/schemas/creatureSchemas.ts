@@ -58,8 +58,19 @@ export const updateCreatureStatusSchema = z.object({
   status: z.enum(['DRAFT', 'PUBLISHED']),
 });
 
+export const listCreaturesQuerySchema = z.object({
+  search: z.string().trim().optional(),
+
+  threatLevel: z.enum(['LOW', 'MODERATE', 'HIGH', 'EXTREME']).optional(),
+
+  page: z.coerce.number().int().min(1).default(1),
+
+  limit: z.coerce.number().int().min(1).max(50).default(12),
+});
+
 export type CreateCreatureInput = z.infer<typeof createCreatureSchema>;
 export type UpdateCreatureInput = z.infer<typeof updateCreatureSchema>;
 export type UpdateCreatureStatusInput = z.infer<
   typeof updateCreatureStatusSchema
 >;
+export type ListCreaturesQuery = z.infer<typeof listCreaturesQuerySchema>;

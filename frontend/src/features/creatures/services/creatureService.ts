@@ -108,6 +108,11 @@ function mapThreatLevel(value: ApiCreature['threatLevel']): ThreatLevel {
   return levels[value];
 }
 
+export interface PublishCreatureError {
+  error: string;
+  missingFields?: string[];
+}
+
 export interface CreateCreatureRequest {
   name: string;
   scientificName?: string | null;
@@ -136,6 +141,28 @@ export interface CreateCreatureRequest {
     alt?: string | null;
     caption?: string | null;
   }[];
+}
+
+export interface GetCreaturesParams {
+  search?: string;
+
+  threatLevel?: 'LOW' | 'MODERATE' | 'HIGH' | 'EXTREME';
+
+  page?: number;
+  limit?: number;
+}
+
+export interface CreaturePagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+interface ApiCreatureListResponse {
+  items: ApiCreature[];
+
+  pagination: CreaturePagination;
 }
 
 export async function createCreature(data: CreateCreatureRequest) {
@@ -238,16 +265,42 @@ export function mapCreature(creature: ApiCreature): Creature {
   };
 }
 
-export async function getCreatures(): Promise<Creature[]> {
-  const response = await apiFetch('/api/creatures');
+export async function getCreatures(params: GetCreaturesParams = {}) {
+  const query = new URLSearchParams();
+
+  if (params.search?.trim()) {
+    query.set('search', params.search.trim());
+  }
+
+  if (params.threatLevel) {
+    query.set('threatLevel', params.threatLevel);
+  }
+
+  if (params.page) {
+    query.set('page', String(params.page));
+  }
+
+  if (params.limit) {
+    query.set('limit', String(params.limit));
+  }
+
+  const suffix = query.toString();
+
+  const response = await apiFetch(
+    `/api/creatures${suffix ? `?${suffix}` : ''}`,
+  );
 
   if (!response.ok) {
     throw new Error('Unable to load creatures');
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as ApiCreatureListResponse;
 
-  return data.creatures.map(mapCreature);
+  return {
+    creatures: data.items.map(mapCreature),
+
+    pagination: data.pagination,
+  };
 }
 export async function getMyCreatureById(id: string): Promise<Creature> {
   const response = await apiFetch(`/api/creatures/mine/${id}`);

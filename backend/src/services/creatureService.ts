@@ -1,7 +1,10 @@
+import { validateCreatureForPublish } from '../helpers/creatureValidation';
 import { getPrisma } from '../lib/prisma';
+import type { Prisma } from '@prisma/client';
 
 import type {
   CreateCreatureInput,
+  ListCreaturesQuery,
   UpdateCreatureInput,
   UpdateCreatureStatusInput,
 } from '../schemas/creatureSchemas';
@@ -153,41 +156,90 @@ export async function createCreature(
   });
 }
 
-export async function getCreatures() {
+export async function getCreatures(query: ListCreaturesQuery) {
   const prisma = getPrisma();
 
-  return prisma.creature.findMany({
-    where: {
-      status: 'PUBLISHED',
-      archivedAt: null,
+  const { search, threatLevel, page, limit } = query;
+
+  const where: Prisma.CreatureWhereInput = {
+    status: 'PUBLISHED',
+    archivedAt: null,
+
+    ...(threatLevel && {
+      threatLevel,
+    }),
+
+    ...(search && {
+      OR: [
+        {
+          name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+
+        {
+          scientificName: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+      ],
+    }),
+  };
+
+  const skip = (page - 1) * limit;
+
+  const [items, total] = await prisma.$transaction([
+    prisma.creature.findMany({
+      where,
+
+      skip,
+      take: limit,
+
+      orderBy: {
+        updatedAt: 'desc',
+      },
+
+      include: {
+        habitats: {
+          include: {
+            habitat: true,
+          },
+        },
+
+        diets: {
+          include: {
+            diet: true,
+          },
+        },
+
+        affinities: true,
+
+        images: {
+          orderBy: {
+            sortOrder: 'asc',
+          },
+        },
+      },
+    }),
+
+    prisma.creature.count({
+      where,
+    }),
+  ]);
+
+  return {
+    items,
+
+    pagination: {
+      page,
+      limit,
+      total,
+
+      totalPages: Math.ceil(total / limit),
     },
-    include: {
-      author: {
-        select: {
-          id: true,
-          username: true,
-          displayName: true,
-          avatarUrl: true,
-        },
-      },
-      habitats: {
-        include: {
-          habitat: true,
-        },
-      },
-      diets: {
-        include: {
-          diet: true,
-        },
-      },
-      affinities: true,
-      images: {
-        orderBy: {
-          sortOrder: 'asc',
-        },
-      },
-    },
-  });
+  };
 }
 
 export async function getCreatureBySlug(slug: string) {
@@ -412,19 +464,23 @@ export async function getMyCreatures(authorId: string) {
 }
 
 export async function updateCreatureStatus(
+  userId: string,
   creatureId: string,
-  authorId: string,
-  input: UpdateCreatureStatusInput,
+  status: 'DRAFT' | 'PUBLISHED',
 ) {
   const prisma = getPrisma();
 
-  const creature = await prisma.creature.findUnique({
+  const creature = await prisma.creature.findFirst({
     where: {
       id: creatureId,
+      authorId: userId,
+      archivedAt: null,
     },
-    select: {
-      id: true,
-      authorId: true,
+
+    include: {
+      habitats: true,
+      diets: true,
+      images: true,
     },
   });
 
@@ -432,16 +488,27 @@ export async function updateCreatureStatus(
     throw new Error('CREATURE_NOT_FOUND');
   }
 
-  if (creature.authorId !== authorId) {
-    throw new Error('CREATURE_FORBIDDEN');
+  if (status === 'PUBLISHED') {
+    const validation = validateCreatureForPublish(creature);
+
+    if (!validation.canPublish) {
+      const error = new Error('CREATURE_NOT_READY');
+
+      Object.assign(error, {
+        missingFields: validation.missingFields,
+      });
+
+      throw error;
+    }
   }
 
   return prisma.creature.update({
     where: {
       id: creatureId,
     },
+
     data: {
-      status: input.status,
+      status,
     },
   });
 }

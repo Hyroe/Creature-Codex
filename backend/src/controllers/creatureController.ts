@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import {
   createCreatureSchema,
+  listCreaturesQuerySchema,
   updateCreatureSchema,
   updateCreatureStatusSchema,
 } from '../schemas/creatureSchemas';
@@ -18,6 +19,7 @@ import {
   archiveCreature,
   getMyCreatureById,
 } from '../services/creatureService';
+import { error } from 'console';
 
 export async function create(req: Request, res: Response) {
   if (!req.user) {
@@ -44,12 +46,19 @@ export async function create(req: Request, res: Response) {
   });
 }
 
-export async function listCreatures(_req: Request, res: Response) {
-  const creatures = await getCreatures();
+export async function listCreatures(req: Request, res: Response) {
+  const result = listCreaturesQuerySchema.safeParse(req.query);
 
-  res.status(200).json({
-    creatures,
-  });
+  if (!result.success) {
+    return res.status(400).json({
+      error: 'Invalid query parameters',
+      details: result.error.flatten(),
+    });
+  }
+
+  const creatures = await getCreatures(result.data);
+
+  return res.json(creatures);
 }
 
 export async function getCreature(req: Request, res: Response) {
@@ -172,27 +181,29 @@ export async function updateStatus(req: Request, res: Response) {
 
   try {
     const creature = await updateCreatureStatus(
-      id,
       req.user.userId,
-      result.data,
+      id,
+      result.data.status,
     );
 
-    res.status(200).json({
-      creature,
-    });
+    res.json(creature);
   } catch (error) {
     if (error instanceof Error && error.message === 'CREATURE_NOT_FOUND') {
-      res.status(404).json({
-        message: 'Creature not found',
+      return res.status(404).json({
+        error: 'Creature not found',
       });
-      return;
     }
 
-    if (error instanceof Error && error.message === 'CREATURE_FORBIDDEN') {
-      res.status(403).json({
-        message: 'You cannot change this creature status',
+    if (error instanceof Error && error.message === 'CREATURE_NOT_READY') {
+      const publishError = error as Error & {
+        missingFields?: string[];
+      };
+
+      return res.status(400).json({
+        error: 'Creature is not ready to publish',
+
+        missingFields: publishError.missingFields ?? [],
       });
-      return;
     }
 
     throw error;
