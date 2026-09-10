@@ -1,6 +1,16 @@
 import {
+  AddPhotoAlternateOutlined,
+  AutoAwesomeOutlined,
+  CollectionsOutlined,
+  DeleteOutlined,
+  ForestOutlined,
+  ShieldOutlined,
+} from '@mui/icons-material';
+
+import {
   Box,
   Button,
+  Card,
   Checkbox,
   FormControl,
   InputLabel,
@@ -13,109 +23,19 @@ import {
   Typography,
 } from '@mui/material';
 
-import { CreatureImage } from './CreatureImage';
-
 import type { LibraryEntity } from '../../library/services/libraryService';
+
+import { CreatureImage } from './CreatureImage';
+import { CreatureFormSection } from './CreatureFormSection';
 
 export interface CreatureFormAffinity {
   type: 'WEAKNESS' | 'RESISTANCE';
+
   targetType: 'ELEMENT' | 'DAMAGE_TYPE' | 'BODY_PART';
+
   targetId: string;
+
   description: string;
-}
-
-interface AffinityRowProps {
-  affinity: CreatureFormAffinity;
-  targets: LibraryEntity[];
-
-  onChange: (patch: Partial<CreatureFormAffinity>) => void;
-
-  onRemove: () => void;
-}
-
-function AffinityRow({
-  affinity,
-  targets,
-  onChange,
-  onRemove,
-}: AffinityRowProps) {
-  return (
-    <Stack spacing={2}>
-      <Stack
-        direction={{
-          xs: 'column',
-          sm: 'row',
-        }}
-        spacing={2}
-      >
-        <FormControl fullWidth>
-          <InputLabel>Target type</InputLabel>
-
-          <Select
-            value={affinity.targetType}
-            label="Target type"
-            onChange={(event) => {
-              onChange({
-                targetType: event.target
-                  .value as CreatureFormAffinity['targetType'],
-
-                targetId: '',
-              });
-            }}
-          >
-            <MenuItem value="ELEMENT">Element</MenuItem>
-
-            <MenuItem value="DAMAGE_TYPE">Damage type</MenuItem>
-
-            <MenuItem value="BODY_PART">Body part</MenuItem>
-          </Select>
-        </FormControl>
-
-        <FormControl fullWidth>
-          <InputLabel>Target</InputLabel>
-
-          <Select
-            value={affinity.targetId}
-            label="Target"
-            onChange={(event) =>
-              onChange({
-                targetId: event.target.value,
-              })
-            }
-          >
-            {targets.map((target) => (
-              <MenuItem key={target.id} value={target.id}>
-                {target.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Stack>
-
-      <TextField
-        label="Description"
-        value={affinity.description}
-        onChange={(event) =>
-          onChange({
-            description: event.target.value,
-          })
-        }
-        multiline
-        minRows={2}
-      />
-
-      <Button
-        type="button"
-        color="error"
-        onClick={onRemove}
-        sx={{
-          alignSelf: 'flex-start',
-        }}
-      >
-        Remove
-      </Button>
-    </Stack>
-  );
 }
 
 export interface CreatureFormGalleryImage {
@@ -158,6 +78,116 @@ interface CreatureFormProps {
   onChange: (values: CreatureFormValues) => void;
 }
 
+interface AffinityRowProps {
+  affinity: CreatureFormAffinity;
+
+  targets: LibraryEntity[];
+
+  onChange: (patch: Partial<CreatureFormAffinity>) => void;
+
+  onRemove: () => void;
+}
+
+function AffinityRow({
+  affinity,
+  targets,
+  onChange,
+  onRemove,
+}: AffinityRowProps) {
+  return (
+    <Card
+      variant="outlined"
+      sx={{
+        p: 2,
+        borderRadius: 2,
+        backgroundColor: 'background.default',
+      }}
+    >
+      <Stack spacing={2}>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: '1fr 1fr',
+            },
+            gap: 2,
+          }}
+        >
+          <FormControl fullWidth size="small">
+            <InputLabel>Target type</InputLabel>
+
+            <Select
+              value={affinity.targetType}
+              label="Target type"
+              onChange={(event) => {
+                onChange({
+                  targetType: event.target
+                    .value as CreatureFormAffinity['targetType'],
+
+                  targetId: '',
+                });
+              }}
+            >
+              <MenuItem value="ELEMENT">Element</MenuItem>
+
+              <MenuItem value="DAMAGE_TYPE">Damage type</MenuItem>
+
+              <MenuItem value="BODY_PART">Body part</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth size="small">
+            <InputLabel>Target</InputLabel>
+
+            <Select
+              value={affinity.targetId}
+              label="Target"
+              onChange={(event) =>
+                onChange({
+                  targetId: event.target.value,
+                })
+              }
+            >
+              {targets.map((target) => (
+                <MenuItem key={target.id} value={target.id}>
+                  {target.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+
+        <TextField
+          label="Description"
+          value={affinity.description}
+          onChange={(event) =>
+            onChange({
+              description: event.target.value,
+            })
+          }
+          size="small"
+          multiline
+          minRows={2}
+        />
+
+        <Button
+          type="button"
+          color="error"
+          size="small"
+          startIcon={<DeleteOutlined />}
+          onClick={onRemove}
+          sx={{
+            alignSelf: 'flex-start',
+          }}
+        >
+          Remove
+        </Button>
+      </Stack>
+    </Card>
+  );
+}
+
 export function CreatureForm({
   values,
   habitats,
@@ -180,6 +210,7 @@ export function CreatureForm({
   function addAffinity(type: 'WEAKNESS' | 'RESISTANCE') {
     onChange({
       ...values,
+
       affinities: [
         ...values.affinities,
         {
@@ -191,11 +222,53 @@ export function CreatureForm({
       ],
     });
   }
+
+  function updateAffinity(index: number, patch: Partial<CreatureFormAffinity>) {
+    const affinities = [...values.affinities];
+
+    affinities[index] = {
+      ...affinities[index],
+      ...patch,
+    };
+
+    onChange({
+      ...values,
+      affinities,
+    });
+  }
+
+  function removeAffinity(index: number) {
+    onChange({
+      ...values,
+
+      affinities: values.affinities.filter(
+        (_, currentIndex) => currentIndex !== index,
+      ),
+    });
+  }
+
+  function getTargets(
+    targetType: CreatureFormAffinity['targetType'],
+  ): LibraryEntity[] {
+    switch (targetType) {
+      case 'ELEMENT':
+        return elements;
+
+      case 'DAMAGE_TYPE':
+        return damageTypes;
+
+      case 'BODY_PART':
+        return bodyParts;
+    }
+  }
+
   function addGalleryImage() {
     onChange({
       ...values,
+
       galleryImages: [
         ...values.galleryImages,
+
         {
           url: '',
           alt: '',
@@ -225,102 +298,79 @@ export function CreatureForm({
   function removeGalleryImage(index: number) {
     onChange({
       ...values,
+
       galleryImages: values.galleryImages.filter(
         (_, currentIndex) => currentIndex !== index,
       ),
     });
   }
 
-  function updateAffinity(index: number, patch: Partial<CreatureFormAffinity>) {
-    const affinities = [...values.affinities];
+  const weaknesses = values.affinities
+    .map((affinity, index) => ({
+      affinity,
+      index,
+    }))
+    .filter(({ affinity }) => affinity.type === 'WEAKNESS');
 
-    affinities[index] = {
-      ...affinities[index],
-      ...patch,
-    };
-
-    onChange({
-      ...values,
-      affinities,
-    });
-  }
-
-  function removeAffinity(index: number) {
-    onChange({
-      ...values,
-      affinities: values.affinities.filter(
-        (_, currentIndex) => currentIndex !== index,
-      ),
-    });
-  }
-
-  function getTargets(
-    targetType: CreatureFormAffinity['targetType'],
-  ): LibraryEntity[] {
-    switch (targetType) {
-      case 'ELEMENT':
-        return elements;
-
-      case 'DAMAGE_TYPE':
-        return damageTypes;
-
-      case 'BODY_PART':
-        return bodyParts;
-
-      default:
-        return [];
-    }
-  }
-
-  console.log({
-    elements,
-    damageTypes,
-    bodyParts,
-    affinities: values.affinities,
-  });
+  const resistances = values.affinities
+    .map((affinity, index) => ({
+      affinity,
+      index,
+    }))
+    .filter(({ affinity }) => affinity.type === 'RESISTANCE');
 
   return (
-    <Stack spacing={5}>
-      <Stack spacing={3}>
-        <Typography variant="h4">Basic Information</Typography>
+    <Stack spacing={3}>
+      {/* BASIC INFORMATION */}
+      <CreatureFormSection
+        id="basic-information"
+        icon={<AutoAwesomeOutlined />}
+        title="Basic Information"
+        description="Define the creature's identity and general characteristics."
+      >
         <TextField
           label="Cover image URL"
+          type="url"
           value={values.coverImageUrl}
           onChange={(event) => update('coverImageUrl', event.target.value)}
           placeholder="https://example.com/creature.jpg"
-          type="url"
+          fullWidth
         />
 
-        {values.coverImageUrl.trim() && (
-          <Box
-            component="img"
-            src={values.coverImageUrl}
-            alt={values.name || 'Creature preview'}
-            height={320}
-            sx={{ objectFit: 'cover', borderRadius: 1 }}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: '1fr 1fr',
+            },
+            gap: 2,
+          }}
+        >
+          <TextField
+            label="Name"
+            value={values.name}
+            onChange={(event) => update('name', event.target.value)}
+            required
+            fullWidth
           />
-        )}
 
-        <TextField
-          label="Name"
-          value={values.name}
-          onChange={(event) => update('name', event.target.value)}
-          required
-        />
-
-        <TextField
-          label="Scientific name"
-          value={values.scientificName}
-          onChange={(event) => update('scientificName', event.target.value)}
-        />
+          <TextField
+            label="Scientific name"
+            value={values.scientificName}
+            onChange={(event) => update('scientificName', event.target.value)}
+            fullWidth
+          />
+        </Box>
 
         <TextField
           label="Description"
           value={values.description}
           onChange={(event) => update('description', event.target.value)}
           multiline
-          minRows={4}
+          minRows={3}
           required
+          fullWidth
         />
 
         <FormControl fullWidth>
@@ -345,74 +395,91 @@ export function CreatureForm({
             <MenuItem value="EXTREME">Extreme</MenuItem>
           </Select>
         </FormControl>
-      </Stack>
+      </CreatureFormSection>
 
-      <Stack spacing={3}>
-        <Typography variant="h4">Ecology</Typography>
+      {/* ECOLOGY */}
+      <CreatureFormSection
+        id="ecology"
+        icon={<ForestOutlined />}
+        title="Ecology"
+        description="Describe where this creature lives, feeds and behaves."
+      >
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: '1fr 1fr',
+            },
+            gap: 2,
+          }}
+        >
+          <FormControl fullWidth>
+            <InputLabel>Habitats</InputLabel>
 
-        <FormControl fullWidth>
-          <InputLabel>Habitats</InputLabel>
+            <Select
+              multiple
+              value={values.habitatIds}
+              input={<OutlinedInput label="Habitats" />}
+              onChange={(event) =>
+                update(
+                  'habitatIds',
 
-          <Select
-            multiple
-            value={values.habitatIds}
-            input={<OutlinedInput label="Habitats" />}
-            onChange={(event) =>
-              update(
-                'habitatIds',
-                typeof event.target.value === 'string'
-                  ? event.target.value.split(',')
-                  : event.target.value,
-              )
-            }
-            renderValue={(selected) =>
-              habitats
-                .filter((item) => selected.includes(item.id))
-                .map((item) => item.name)
-                .join(', ')
-            }
-          >
-            {habitats.map((habitat) => (
-              <MenuItem key={habitat.id} value={habitat.id}>
-                <Checkbox checked={values.habitatIds.includes(habitat.id)} />
+                  typeof event.target.value === 'string'
+                    ? event.target.value.split(',')
+                    : event.target.value,
+                )
+              }
+              renderValue={(selected) =>
+                habitats
+                  .filter((item) => selected.includes(item.id))
+                  .map((item) => item.name)
+                  .join(', ')
+              }
+            >
+              {habitats.map((habitat) => (
+                <MenuItem key={habitat.id} value={habitat.id}>
+                  <Checkbox checked={values.habitatIds.includes(habitat.id)} />
 
-                <ListItemText primary={habitat.name} />
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+                  <ListItemText primary={habitat.name} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-        <FormControl fullWidth>
-          <InputLabel>Diets</InputLabel>
+          <FormControl fullWidth>
+            <InputLabel>Diets</InputLabel>
 
-          <Select
-            multiple
-            value={values.dietIds}
-            input={<OutlinedInput label="Diets" />}
-            onChange={(event) =>
-              update(
-                'dietIds',
-                typeof event.target.value === 'string'
-                  ? event.target.value.split(',')
-                  : event.target.value,
-              )
-            }
-            renderValue={(selected) =>
-              diets
-                .filter((item) => selected.includes(item.id))
-                .map((item) => item.name)
-                .join(', ')
-            }
-          >
-            {diets.map((diet) => (
-              <MenuItem key={diet.id} value={diet.id}>
-                <Checkbox checked={values.dietIds.includes(diet.id)} />
+            <Select
+              multiple
+              value={values.dietIds}
+              input={<OutlinedInput label="Diets" />}
+              onChange={(event) =>
+                update(
+                  'dietIds',
 
-                <ListItemText primary={diet.name} />
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+                  typeof event.target.value === 'string'
+                    ? event.target.value.split(',')
+                    : event.target.value,
+                )
+              }
+              renderValue={(selected) =>
+                diets
+                  .filter((item) => selected.includes(item.id))
+                  .map((item) => item.name)
+                  .join(', ')
+              }
+            >
+              {diets.map((diet) => (
+                <MenuItem key={diet.id} value={diet.id}>
+                  <Checkbox checked={values.dietIds.includes(diet.id)} />
+
+                  <ListItemText primary={diet.name} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
 
         <TextField
           label="Behavior"
@@ -420,6 +487,7 @@ export function CreatureForm({
           onChange={(event) => update('behavior', event.target.value)}
           multiline
           minRows={3}
+          fullWidth
         />
 
         <TextField
@@ -428,148 +496,275 @@ export function CreatureForm({
           onChange={(event) => update('lifeCycle', event.target.value)}
           multiline
           minRows={3}
+          fullWidth
         />
-      </Stack>
+      </CreatureFormSection>
 
-      <Stack spacing={3}>
-        <Typography variant="h4">Combat</Typography>
-
+      {/* COMBAT */}
+      <CreatureFormSection
+        id="combat"
+        icon={<ShieldOutlined />}
+        title="Combat"
+        description="Document combat behavior, weaknesses and resistances."
+      >
         <TextField
           label="Attack style"
           value={values.attackStyle}
           onChange={(event) => update('attackStyle', event.target.value)}
           multiline
           minRows={3}
+          fullWidth
         />
-      </Stack>
 
-      <Stack spacing={3}>
-        <Typography variant="h5">Weaknesses</Typography>
-
-        {values.affinities
-          .map((affinity, index) => ({
-            affinity,
-            index,
-          }))
-          .filter(({ affinity }) => affinity.type === 'WEAKNESS')
-          .map(({ affinity, index }) => (
-            <AffinityRow
-              key={`weakness-${index}`}
-              affinity={affinity}
-              targets={getTargets(affinity.targetType)}
-              onChange={(patch) => updateAffinity(index, patch)}
-              onRemove={() => removeAffinity(index)}
-            />
-          ))}
-
-        <Button
-          type="button"
-          variant="outlined"
-          onClick={() => addAffinity('WEAKNESS')}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              lg: '1fr 1fr',
+            },
+            gap: 3,
+            alignItems: 'start',
+          }}
         >
-          Add weakness
-        </Button>
-      </Stack>
+          {/* WEAKNESSES */}
+          <Stack spacing={2}>
+            <Box>
+              <Typography variant="h6" component="h3">
+                Weaknesses
+              </Typography>
 
-      <Stack spacing={3}>
-        <Typography variant="h5">Resistances</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Vulnerabilities that can be exploited against this creature.
+              </Typography>
+            </Box>
 
-        {values.affinities
-          .map((affinity, index) => ({
-            affinity,
-            index,
-          }))
-          .filter(({ affinity }) => affinity.type === 'RESISTANCE')
-          .map(({ affinity, index }) => (
-            <AffinityRow
-              key={`resistance-${index}`}
-              affinity={affinity}
-              targets={getTargets(affinity.targetType)}
-              onChange={(patch) => updateAffinity(index, patch)}
-              onRemove={() => removeAffinity(index)}
-            />
-          ))}
-
-        <Button
-          type="button"
-          variant="outlined"
-          onClick={() => addAffinity('RESISTANCE')}
-        >
-          Add resistance
-        </Button>
-      </Stack>
-
-      <Stack spacing={3}>
-        <Typography variant="h4">Images</Typography>
-
-        {values.galleryImages.map((image, index) => (
-          <Stack
-            key={index}
-            spacing={2}
-            sx={{
-              p: 2,
-              border: 1,
-              borderColor: 'divider',
-              borderRadius: 2,
-            }}
-          >
-            <TextField
-              label="Image URL"
-              type="url"
-              value={image.url}
-              onChange={(event) =>
-                updateGalleryImage(index, {
-                  url: event.target.value,
-                })
-              }
-            />
-
-            <TextField
-              label="Alternative text"
-              value={image.alt}
-              onChange={(event) =>
-                updateGalleryImage(index, {
-                  alt: event.target.value,
-                })
-              }
-              placeholder={values.name || 'Creature image'}
-            />
-
-            <TextField
-              label="Caption"
-              value={image.caption}
-              onChange={(event) =>
-                updateGalleryImage(index, {
-                  caption: event.target.value,
-                })
-              }
-            />
-
-            {image.url.trim() && (
-              <CreatureImage
-                src={image.url}
-                alt={image.alt || values.name || 'Creature image'}
-                height={220}
-              />
+            {weaknesses.length === 0 && (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  py: 1,
+                }}
+              >
+                No weaknesses added.
+              </Typography>
             )}
+
+            {weaknesses.map(({ affinity, index }) => (
+              <AffinityRow
+                key={`weakness-${index}`}
+                affinity={affinity}
+                targets={getTargets(affinity.targetType)}
+                onChange={(patch) => updateAffinity(index, patch)}
+                onRemove={() => removeAffinity(index)}
+              />
+            ))}
 
             <Button
               type="button"
-              color="error"
-              onClick={() => removeGalleryImage(index)}
+              variant="outlined"
+              size="small"
+              onClick={() => addAffinity('WEAKNESS')}
               sx={{
                 alignSelf: 'flex-start',
               }}
             >
-              Remove image
+              Add weakness
             </Button>
           </Stack>
-        ))}
 
-        <Button type="button" variant="outlined" onClick={addGalleryImage}>
+          {/* RESISTANCES */}
+          <Stack spacing={2}>
+            <Box>
+              <Typography variant="h6" component="h3">
+                Resistances
+              </Typography>
+
+              <Typography variant="body2" color="text.secondary">
+                Elements, damage or body characteristics it resists.
+              </Typography>
+            </Box>
+
+            {resistances.length === 0 && (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  py: 1,
+                }}
+              >
+                No resistances added.
+              </Typography>
+            )}
+
+            {resistances.map(({ affinity, index }) => (
+              <AffinityRow
+                key={`resistance-${index}`}
+                affinity={affinity}
+                targets={getTargets(affinity.targetType)}
+                onChange={(patch) => updateAffinity(index, patch)}
+                onRemove={() => removeAffinity(index)}
+              />
+            ))}
+
+            <Button
+              type="button"
+              variant="outlined"
+              size="small"
+              onClick={() => addAffinity('RESISTANCE')}
+              sx={{
+                alignSelf: 'flex-start',
+              }}
+            >
+              Add resistance
+            </Button>
+          </Stack>
+        </Box>
+      </CreatureFormSection>
+
+      {/* GALLERY */}
+      <CreatureFormSection
+        id="gallery"
+        icon={<CollectionsOutlined />}
+        title="Gallery"
+        description="Add additional images that document this creature."
+      >
+        {values.galleryImages.length === 0 && (
+          <Box
+            sx={{
+              py: 3,
+              px: 2,
+              border: 1,
+              borderStyle: 'dashed',
+              borderColor: 'divider',
+              borderRadius: 2,
+              textAlign: 'center',
+            }}
+          >
+            <AddPhotoAlternateOutlined
+              sx={{
+                fontSize: 38,
+                color: 'text.secondary',
+                mb: 1,
+              }}
+            />
+
+            <Typography variant="body2" color="text.secondary">
+              No gallery images added yet.
+            </Typography>
+          </Box>
+        )}
+
+        <Stack spacing={2}>
+          {values.galleryImages.map((image, index) => (
+            <Card
+              key={index}
+              variant="outlined"
+              sx={{
+                overflow: 'hidden',
+                borderRadius: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'grid',
+
+                  gridTemplateColumns: {
+                    xs: '1fr',
+                    sm: '180px minmax(0, 1fr)',
+                  },
+                }}
+              >
+                <CreatureImage
+                  src={image.url || null}
+                  alt={image.alt || values.name || 'Creature image'}
+                  height={180}
+                />
+
+                <Stack
+                  spacing={1.5}
+                  sx={{
+                    p: 2,
+                  }}
+                >
+                  <TextField
+                    label="Image URL"
+                    type="url"
+                    size="small"
+                    value={image.url}
+                    onChange={(event) =>
+                      updateGalleryImage(index, {
+                        url: event.target.value,
+                      })
+                    }
+                    fullWidth
+                  />
+
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: {
+                        xs: '1fr',
+                        md: '1fr 1fr',
+                      },
+                      gap: 1.5,
+                    }}
+                  >
+                    <TextField
+                      label="Alternative text"
+                      size="small"
+                      value={image.alt}
+                      onChange={(event) =>
+                        updateGalleryImage(index, {
+                          alt: event.target.value,
+                        })
+                      }
+                      placeholder={values.name || 'Creature image'}
+                    />
+
+                    <TextField
+                      label="Caption"
+                      size="small"
+                      value={image.caption}
+                      onChange={(event) =>
+                        updateGalleryImage(index, {
+                          caption: event.target.value,
+                        })
+                      }
+                    />
+                  </Box>
+
+                  <Button
+                    type="button"
+                    color="error"
+                    size="small"
+                    startIcon={<DeleteOutlined />}
+                    onClick={() => removeGalleryImage(index)}
+                    sx={{
+                      alignSelf: 'flex-start',
+                    }}
+                  >
+                    Remove image
+                  </Button>
+                </Stack>
+              </Box>
+            </Card>
+          ))}
+        </Stack>
+
+        <Button
+          type="button"
+          variant="outlined"
+          startIcon={<AddPhotoAlternateOutlined />}
+          onClick={addGalleryImage}
+          sx={{
+            alignSelf: 'flex-start',
+          }}
+        >
           Add gallery image
         </Button>
-      </Stack>
+      </CreatureFormSection>
     </Stack>
   );
 }

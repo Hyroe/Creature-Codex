@@ -12,6 +12,8 @@ import {
 
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { CreatureEditorActions } from '../features/creatures/components/CreatureEditorActions';
+
 import {
   getMyCreatureById,
   updateCreature,
@@ -32,6 +34,8 @@ import {
 } from '../features/creatures/components/CreatureForm';
 
 import type { Creature } from '../features/creatures/types/creature';
+import { CreatureEditorLayout } from '../features/creatures/components/CreatureEditorLayout';
+import { CreatureEditorSidebar } from '../features/creatures/components/CreatureEditorSidebar';
 
 function creatureToFormValues(creature: Creature): CreatureFormValues {
   let threatLevel: CreatureFormValues['threatLevel'];
@@ -271,71 +275,34 @@ export function EditCreaturePage() {
   }
 
   return (
-    <Box sx={{ py: 6 }}>
-      <Container maxWidth="md">
-        <Stack spacing={4}>
-          <Box>
-            <Typography variant="overline" color="primary">
-              CREATURE CODEX
-            </Typography>
+    <CreatureEditorLayout
+      title="Edit Creature"
+      description="Update the information, ecology, combat profile and imagery for this creature."
+      sidebar={<CreatureEditorSidebar values={values} />}
+    >
+      {error && <Alert severity="error">{error}</Alert>}
 
-            <Typography variant="h2" component="h1">
-              Edit Creature
-            </Typography>
+      <Box component="form" onSubmit={handleSubmit}>
+        <Stack spacing={3}>
+          <CreatureForm
+            values={values}
+            habitats={habitats}
+            diets={diets}
+            elements={elements}
+            damageTypes={damageTypes}
+            bodyParts={bodyParts}
+            onChange={setValues}
+          />
 
-            <Typography color="text.secondary" sx={{ mt: 1 }}>
-              Update the creature information stored in your codex.
-            </Typography>
-          </Box>
-
-          {error && <Alert severity="error">{error}</Alert>}
-
-          <Box component="form" onSubmit={handleSubmit}>
-            <Stack spacing={4}>
-              <CreatureForm
-                values={values}
-                habitats={habitats}
-                diets={diets}
-                elements={elements}
-                damageTypes={damageTypes}
-                bodyParts={bodyParts}
-                onChange={setValues}
-              />
-
-              <Stack
-                direction={{
-                  xs: 'column',
-                  sm: 'row',
-                }}
-                spacing={2}
-                sx={{ justifyContent: 'flex-end' }}
-              >
-                <Button
-                  type="button"
-                  variant="text"
-                  disabled={isSubmitting}
-                  onClick={() => navigate('/my-creatures')}
-                >
-                  Cancel
-                </Button>
-
-                <Button
-                  type="submit"
-                  variant="contained"
-                  size="large"
-                  disabled={
-                    isSubmitting ||
-                    !values.name.trim() ||
-                    !values.description.trim()
-                  }
-                >
-                  {isSubmitting ? 'Saving...' : 'Save changes'}
-                </Button>
-              </Stack>
-            </Stack>
-          </Box>
+          <CreatureEditorActions
+            isSubmitting={isSubmitting}
+            disabled={!values.name.trim() || !values.description.trim()}
+            submitLabel="Save Changes"
+            submittingLabel="Saving..."
+            onCancel={() => navigate('/my-creatures')}
+          />
         </Stack>
-      </Container>
-    </Box>
+      </Box>
+    </CreatureEditorLayout>
   );
 }

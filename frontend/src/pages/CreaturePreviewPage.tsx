@@ -5,11 +5,9 @@ import {
   CircularProgress,
   Container,
   Stack,
-  Typography,
 } from '@mui/material';
 
 import { useEffect, useState } from 'react';
-
 import { useNavigate, useParams } from 'react-router-dom';
 
 import type { Creature } from '../features/creatures/types/creature';
@@ -27,7 +25,6 @@ import { CreatureGallery } from '../features/creatures/components/CreatureGaller
 
 export function CreaturePreviewPage() {
   const { id } = useParams<{ id: string }>();
-
   const navigate = useNavigate();
 
   const [creature, setCreature] = useState<Creature | null>(null);
@@ -48,7 +45,6 @@ export function CreaturePreviewPage() {
     async function loadCreature() {
       try {
         const data = await getMyCreatureById(id!);
-
         setCreature(data);
       } catch (error) {
         setError(
@@ -73,9 +69,7 @@ export function CreaturePreviewPage() {
     try {
       await updateCreatureStatus(id, 'PUBLISHED');
 
-      navigate(`/creatures/${creature.slug}`, {
-        replace: true,
-      });
+      navigate(`/creatures/${creature.slug}`, { replace: true });
     } catch (error) {
       setError(
         error instanceof Error ? error.message : 'Unable to publish creature',
@@ -87,7 +81,13 @@ export function CreaturePreviewPage() {
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          py: 10,
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -105,9 +105,13 @@ export function CreaturePreviewPage() {
     <>
       <Container maxWidth="lg" sx={{ pt: 4 }}>
         <Stack spacing={2}>
-          <Alert severity="info">
-            Preview mode — this creature is not public yet.
+          <Alert severity={creature.status === 'Draft' ? 'info' : 'success'}>
+            {creature.status === 'Draft'
+              ? 'Preview mode — this creature is not public yet.'
+              : 'Preview mode — this creature is currently published.'}
           </Alert>
+
+          {error && <Alert severity="error">{error}</Alert>}
 
           <Stack
             direction={{
@@ -121,6 +125,10 @@ export function CreaturePreviewPage() {
               onClick={() => navigate(`/creatures/${creature.id}/edit`)}
             >
               Edit
+            </Button>
+
+            <Button variant="text" onClick={() => navigate('/my-creatures')}>
+              Back
             </Button>
 
             {creature.status === 'Draft' && (
@@ -137,13 +145,9 @@ export function CreaturePreviewPage() {
       </Container>
 
       <CreatureHero creature={creature} />
-
       <CreatureOverview creature={creature} />
-
       <CreatureEcology creature={creature} />
-
       <CreatureCombat creature={creature} />
-
       <CreatureGallery creature={creature} />
     </>
   );
