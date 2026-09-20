@@ -6,9 +6,9 @@ import { cleanupDatabase } from '../../helpers/cleanupDatabase';
 import { app } from '../../../src/app';
 
 describe('POST /api/auth/register', () => {
-  /*beforeEach(async () => {
+  beforeEach(async () => {
     await cleanupDatabase();
-  });*/
+  });
   it('should register a new user', async () => {
     const response = await request(app).post('/api/auth/register').send({
       username: 'test_hunter',
