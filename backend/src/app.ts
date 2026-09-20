@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes';
 import creatureRoutes from './routes/creatureRoutes';
 import cookieParser from 'cookie-parser';
 import libraryRoutes from './routes/libraryRoutes';
+import commentRoutes from './routes/commentRoutes';
 
 export const app = express();
 
@@ -30,5 +31,6 @@ app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/creatures', creatureRoutes);
 app.use('/api/library', libraryRoutes);
+app.use('/api', commentRoutes);
 
 app.use(errorHandler);
