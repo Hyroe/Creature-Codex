@@ -1,6 +1,7 @@
-import { Grid } from '@mui/material';
+import { Box } from '@mui/material';
 
 import type { Creature } from '../types/creature';
+
 import { CreatureCard } from './CreatureCard';
 
 interface CreatureGridProps {
@@ -9,12 +10,25 @@ interface CreatureGridProps {
 
 export function CreatureGrid({ creatures }: CreatureGridProps) {
   return (
-    <Grid container spacing={3}>
+    <Box
+      sx={{
+        display: 'grid',
+
+        gridTemplateColumns: {
+          xs: '1fr',
+          sm: 'repeat(2, minmax(0, 1fr))',
+          lg: 'repeat(3, minmax(0, 1fr))',
+        },
+
+        gap: {
+          xs: 2.5,
+          md: 3,
+        },
+      }}
+    >
       {creatures.map((creature) => (
-        <Grid key={creature.id} size={{ xs: 12, sm: 6, md: 4 }}>
-          <CreatureCard creature={creature} />
-        </Grid>
+        <CreatureCard key={creature.id} creature={creature} />
       ))}
-    </Grid>
+    </Box>
   );
 }

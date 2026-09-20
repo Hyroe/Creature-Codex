@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import {
   Alert,
   Box,
+  Button,
   CircularProgress,
   Pagination,
   Stack,
@@ -47,13 +49,25 @@ function mapThreatFilter(
 export function CreaturesPage() {
   const [creatures, setCreatures] = useState<Creature[]>([]);
 
-  const [search, setSearch] = useState('');
-
-  const [threat, setThreat] = useState<ThreatFilter>('All');
-
-  const [page, setPage] = useState(1);
-
   const [totalPages, setTotalPages] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const initialThreat = searchParams.get('threat') as ThreatFilter | null;
+
+  const [search, setSearch] = useState(searchParams.get('search') ?? '');
+
+  const [threat, setThreat] = useState<ThreatFilter>(
+    initialThreat &&
+      ['All', 'Low', 'Moderate', 'High', 'Extreme'].includes(initialThreat)
+      ? initialThreat
+      : 'All',
+  );
+
+  const [page, setPage] = useState(() => {
+    const value = Number(searchParams.get('page'));
+
+    return Number.isInteger(value) && value > 0 ? value : 1;
+  });
 
   const [total, setTotal] = useState(0);
 
@@ -62,6 +76,26 @@ export function CreaturesPage() {
   const [error, setError] = useState<string | null>(null);
 
   const debouncedSearch = useDebounce(search, 300);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (debouncedSearch.trim()) {
+      params.set('search', debouncedSearch.trim());
+    }
+
+    if (threat !== 'All') {
+      params.set('threat', threat);
+    }
+
+    if (page > 1) {
+      params.set('page', String(page));
+    }
+
+    setSearchParams(params, {
+      replace: true,
+    });
+  }, [debouncedSearch, threat, page, setSearchParams]);
 
   useEffect(() => {
     let active = true;
@@ -117,6 +151,12 @@ export function CreaturesPage() {
     setPage(1);
   }
 
+  function handleClearFilters() {
+    setSearch('');
+    setThreat('All');
+    setPage(1);
+  }
+
   function handleThreatChange(value: ThreatFilter) {
     setThreat(value);
     setPage(1);
@@ -125,16 +165,44 @@ export function CreaturesPage() {
   return (
     <Box>
       {/* HEADER */}
-      <Box sx={{ mb: 5 }}>
-        <Typography variant="overline" color="primary">
+      <Box
+        sx={{
+          mb: {
+            xs: 4,
+            md: 5,
+          },
+        }}
+      >
+        <Typography
+          variant="overline"
+          color="primary"
+          sx={{
+            letterSpacing: '0.1em',
+          }}
+        >
           THE BESTIARY
         </Typography>
 
-        <Typography variant="h2" component="h1" sx={{ mb: 2 }}>
+        <Typography
+          variant="h2"
+          component="h1"
+          sx={{
+            mt: 0.5,
+            mb: 1,
+          }}
+        >
           Creature Library
         </Typography>
 
-        <Typography color="text.secondary">
+        <Typography
+          color="text.secondary"
+          sx={{
+            maxWidth: 560,
+            fontSize: {
+              md: '1.05rem',
+            },
+          }}
+        >
           Explore the creatures documented within the Codex.
         </Typography>
       </Box>
@@ -174,29 +242,67 @@ export function CreaturesPage() {
         ) : creatures.length === 0 ? (
           <Box
             sx={{
-              py: 8,
+              py: {
+                xs: 7,
+                md: 10,
+              },
+
+              px: 3,
+
+              border: 1,
+              borderStyle: 'dashed',
+              borderColor: 'divider',
+              borderRadius: 2,
+
               textAlign: 'center',
+
+              backgroundColor: 'rgba(255, 255, 255, 0.015)',
             }}
           >
-            <Typography variant="h5" sx={{ mb: 1 }}>
+            <Typography variant="h5" component="h2" sx={{ mb: 1 }}>
               No creatures found
             </Typography>
 
-            <Typography color="text.secondary">
-              Try changing your search or threat level.
+            <Typography
+              color="text.secondary"
+              sx={{
+                mb: 3,
+                maxWidth: 420,
+                mx: 'auto',
+              }}
+            >
+              No creatures match your current search and threat level.
             </Typography>
+
+            {(search || threat !== 'All') && (
+              <Button variant="outlined" onClick={handleClearFilters}>
+                Clear filters
+              </Button>
+            )}
           </Box>
         ) : (
           <>
-            <Box
+            <Stack
+              component="div"
+              direction="row"
               sx={{
-                mb: 2,
+                justifyContent: 'space-between',
+                alignItems: 'flex-end',
+                mb: 2.5,
               }}
             >
-              <Typography variant="body2" color="text.secondary">
-                {total === 1 ? '1 creature' : `${total} creatures`}
-              </Typography>
-            </Box>
+              <Box>
+                <Typography variant="h6" component="h2">
+                  Creatures
+                </Typography>
+
+                <Typography variant="body2" color="text.secondary">
+                  {total === 1
+                    ? '1 creature found'
+                    : `${total} creatures found`}
+                </Typography>
+              </Box>
+            </Stack>
 
             <CreatureGrid creatures={creatures} />
           </>
