@@ -12,6 +12,7 @@ import { EmptyState } from '../components/common/EmptyState';
 import { getCreatureBySlug } from '../features/creatures/services/creatureService';
 
 import type { Creature } from '../features/creatures/types/creature';
+import { CreatureComments } from '../features/comments/components/CreatureComments';
 
 export function CreatureDetailsPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -71,6 +72,7 @@ export function CreatureDetailsPage() {
           <CreatureEcology creature={creature} />
           <CreatureCombat creature={creature} />
           <CreatureGallery creature={creature} />
+          <CreatureComments slug={creature.slug} />
         </Stack>
       </Container>
     </Box>
