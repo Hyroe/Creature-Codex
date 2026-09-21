@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 
 import {
   favoriteCreature,
+  getCreatureFavoriteStatus,
   getUserFavorites,
   unfavoriteCreature,
 } from '../services/favoriteService';
@@ -58,4 +59,25 @@ export async function listMyFavorites(req: Request, res: Response) {
   const favorites = await getUserFavorites(req.user.userId);
 
   return res.json(favorites);
+}
+
+export async function getFavoriteStatus(req: Request, res: Response) {
+  if (!req.user) {
+    return res.status(401).json({
+      message: 'Unauthorized',
+    });
+  }
+
+  const result = await getCreatureFavoriteStatus(
+    req.user.userId,
+    String(req.params.slug),
+  );
+
+  if (!result) {
+    return res.status(404).json({
+      message: 'Creature not found',
+    });
+  }
+
+  return res.json(result);
 }

@@ -111,3 +111,40 @@ export async function getUserFavorites(userId: string) {
     },
   });
 }
+
+export async function getCreatureFavoriteStatus(userId: string, slug: string) {
+  const prisma = getPrisma();
+
+  const creature = await prisma.creature.findFirst({
+    where: {
+      slug,
+      status: 'PUBLISHED',
+      archivedAt: null,
+    },
+
+    select: {
+      id: true,
+    },
+  });
+
+  if (!creature) {
+    return null;
+  }
+
+  const favorite = await prisma.creatureFavorite.findUnique({
+    where: {
+      userId_creatureId: {
+        userId,
+        creatureId: creature.id,
+      },
+    },
+
+    select: {
+      id: true,
+    },
+  });
+
+  return {
+    isFavorite: Boolean(favorite),
+  };
+}

@@ -46,6 +46,9 @@ export function Navbar() {
             <Button color="inherit" component={Link} to="/library">
               Library
             </Button>
+            <Button color="inherit" component={Link} to="/favorites">
+              Saved
+            </Button>
           </Box>
 
           <Box

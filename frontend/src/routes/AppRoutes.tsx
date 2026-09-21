@@ -25,6 +25,7 @@ import { CreateCreaturePage } from '../pages/CreateCreaturePage';
 import { MyCreaturesPage } from '../pages/MyCreaturesPage';
 import { EditCreaturePage } from '../pages/EditCreaturePage';
 import { CreaturePreviewPage } from '../pages/CreaturePreviewPage';
+import { FavoritesPage } from '../pages/FavoritesPage';
 
 export function AppRoutes() {
   return (
@@ -79,6 +80,7 @@ export function AppRoutes() {
               path="/creatures/:id/preview"
               element={<CreaturePreviewPage />}
             />
+            <Route path="/favorites" element={<FavoritesPage />} />
           </Route>
           ;
         </Route>

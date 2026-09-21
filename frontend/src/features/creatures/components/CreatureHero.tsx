@@ -3,12 +3,14 @@ import { Box, Container } from '@mui/material';
 import type { Creature } from '../types/creature';
 import { CreatureHeader } from './CreatureHeader';
 import { CreatureImage } from './CreatureImage';
+import { ReactNode } from 'react';
 
 interface CreatureHeroProps {
   creature: Creature;
+  actions?: ReactNode;
 }
 
-export function CreatureHero({ creature }: CreatureHeroProps) {
+export function CreatureHero({ creature, actions }: CreatureHeroProps) {
   return (
     <Box
       component="section"
@@ -34,7 +36,7 @@ export function CreatureHero({ creature }: CreatureHeroProps) {
             height={550}
           />
 
-          <CreatureHeader creature={creature} />
+          <CreatureHeader creature={creature} actions={actions} />
         </Box>
       </Container>
     </Box>

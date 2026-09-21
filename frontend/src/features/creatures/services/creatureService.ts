@@ -4,7 +4,7 @@ import type { Creature, ThreatLevel } from '../types/creature';
 import { Diet } from '../types/diet';
 import { Habitat } from '../types/habitat';
 
-interface ApiCreature {
+export interface ApiCreature {
   id: string;
   slug: string;
   name: string;

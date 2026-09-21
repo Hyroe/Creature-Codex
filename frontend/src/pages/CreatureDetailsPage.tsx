@@ -13,6 +13,7 @@ import { getCreatureBySlug } from '../features/creatures/services/creatureServic
 
 import type { Creature } from '../features/creatures/types/creature';
 import { CreatureComments } from '../features/comments/components/CreatureComments';
+import { FavoriteButton } from '../features/favorites/components/FavoriteButton';
 
 export function CreatureDetailsPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -67,7 +68,10 @@ export function CreatureDetailsPage() {
     <Box>
       <Container maxWidth="lg">
         <Stack spacing={{ xs: 6, md: 10 }}>
-          <CreatureHero creature={creature} />
+          <CreatureHero
+            creature={creature}
+            actions={<FavoriteButton slug={creature.slug} />}
+          />
           <CreatureOverview creature={creature} />
           <CreatureEcology creature={creature} />
           <CreatureCombat creature={creature} />

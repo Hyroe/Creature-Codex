@@ -259,4 +259,165 @@ describe('Creature favorites', () => {
       expect(response.body).toEqual([]);
     });
   });
+  describe('GET /api/creatures/:slug/favorite', () => {
+    it('should return false when the creature is not favorited', async () => {
+      const owner = await createAuthenticatedUser();
+
+      const user = await createAuthenticatedUser();
+
+      const creature = await createTestCreature({
+        authorId: owner.user.id,
+        status: 'PUBLISHED',
+      });
+
+      const response = await request(app)
+        .get(`/api/creatures/${creature.slug}/favorite`)
+        .set('Authorization', `Bearer ${user.accessToken}`);
+
+      expect(response.status).toBe(200);
+
+      expect(response.body).toEqual({
+        isFavorite: false,
+      });
+    });
+
+    it('should return true when the creature is favorited', async () => {
+      const owner = await createAuthenticatedUser();
+
+      const user = await createAuthenticatedUser();
+
+      const creature = await createTestCreature({
+        authorId: owner.user.id,
+        status: 'PUBLISHED',
+      });
+
+      await request(app)
+        .post(`/api/creatures/${creature.slug}/favorite`)
+        .set('Authorization', `Bearer ${user.accessToken}`);
+
+      const response = await request(app)
+        .get(`/api/creatures/${creature.slug}/favorite`)
+        .set('Authorization', `Bearer ${user.accessToken}`);
+
+      expect(response.status).toBe(200);
+
+      expect(response.body).toEqual({
+        isFavorite: true,
+      });
+    });
+
+    it('should return false after removing the favorite', async () => {
+      const owner = await createAuthenticatedUser();
+
+      const user = await createAuthenticatedUser();
+
+      const creature = await createTestCreature({
+        authorId: owner.user.id,
+        status: 'PUBLISHED',
+      });
+
+      await request(app)
+        .post(`/api/creatures/${creature.slug}/favorite`)
+        .set('Authorization', `Bearer ${user.accessToken}`);
+
+      await request(app)
+        .delete(`/api/creatures/${creature.slug}/favorite`)
+        .set('Authorization', `Bearer ${user.accessToken}`);
+
+      const response = await request(app)
+        .get(`/api/creatures/${creature.slug}/favorite`)
+        .set('Authorization', `Bearer ${user.accessToken}`);
+
+      expect(response.status).toBe(200);
+
+      expect(response.body).toEqual({
+        isFavorite: false,
+      });
+    });
+
+    it('should keep favorite status isolated between users', async () => {
+      const owner = await createAuthenticatedUser();
+
+      const userA = await createAuthenticatedUser();
+
+      const userB = await createAuthenticatedUser();
+
+      const creature = await createTestCreature({
+        authorId: owner.user.id,
+        status: 'PUBLISHED',
+      });
+
+      await request(app)
+        .post(`/api/creatures/${creature.slug}/favorite`)
+        .set('Authorization', `Bearer ${userA.accessToken}`);
+
+      const userAResponse = await request(app)
+        .get(`/api/creatures/${creature.slug}/favorite`)
+        .set('Authorization', `Bearer ${userA.accessToken}`);
+
+      const userBResponse = await request(app)
+        .get(`/api/creatures/${creature.slug}/favorite`)
+        .set('Authorization', `Bearer ${userB.accessToken}`);
+
+      expect(userAResponse.body).toEqual({
+        isFavorite: true,
+      });
+
+      expect(userBResponse.body).toEqual({
+        isFavorite: false,
+      });
+    });
+
+    it('should reject unauthenticated users', async () => {
+      const owner = await createAuthenticatedUser();
+
+      const creature = await createTestCreature({
+        authorId: owner.user.id,
+        status: 'PUBLISHED',
+      });
+
+      const response = await request(app).get(
+        `/api/creatures/${creature.slug}/favorite`,
+      );
+
+      expect(response.status).toBe(401);
+    });
+
+    it('should return 404 for a draft creature', async () => {
+      const owner = await createAuthenticatedUser();
+
+      const user = await createAuthenticatedUser();
+
+      const creature = await createTestCreature({
+        authorId: owner.user.id,
+        status: 'DRAFT',
+      });
+
+      const response = await request(app)
+        .get(`/api/creatures/${creature.slug}/favorite`)
+        .set('Authorization', `Bearer ${user.accessToken}`);
+
+      expect(response.status).toBe(404);
+
+      expect(response.body.message).toBe('Creature not found');
+    });
+
+    it('should return 404 for an archived creature', async () => {
+      const owner = await createAuthenticatedUser();
+
+      const user = await createAuthenticatedUser();
+
+      const creature = await createTestCreature({
+        authorId: owner.user.id,
+        status: 'PUBLISHED',
+        archived: true,
+      });
+
+      const response = await request(app)
+        .get(`/api/creatures/${creature.slug}/favorite`)
+        .set('Authorization', `Bearer ${user.accessToken}`);
+
+      expect(response.status).toBe(404);
+    });
+  });
 });
